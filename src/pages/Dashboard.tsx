@@ -189,15 +189,27 @@ function EmptyState({ onAddHabit }: { onAddHabit: () => void }) {
   );
 }
 
-// Full Year Grid Component (GitHub-style, shows entire year)
-function FullYearGrid({ data, habits }: { data: Array<{ date: string; completion: number; count: number; isFuture: boolean; isToday: boolean }>; habits: GewohnheitenVerwaltung[] }) {
-  // Group by weeks for the grid
-  const weeks: Array<Array<typeof data[0] | null>> = [];
+// Helper to get color for completion
+function getCompletionColor(day: { completion: number; isFuture: boolean } | null) {
+  if (!day) return 'bg-transparent';
+  if (day.isFuture) return 'bg-muted/30';
+  if (day.completion === 0) return 'bg-muted';
+  if (day.completion < 25) return 'bg-primary/20';
+  if (day.completion < 50) return 'bg-primary/40';
+  if (day.completion < 75) return 'bg-primary/60';
+  if (day.completion < 100) return 'bg-primary/80';
+  return 'bg-primary';
+}
+
+// Desktop Year Grid - proper GitHub-style with month labels
+function DesktopYearGrid({ data, habits }: { data: Array<{ date: string; completion: number; count: number; isFuture: boolean; isToday: boolean }>; habits: GewohnheitenVerwaltung[] }) {
+  // Group by weeks
+  const weeks: Array<{ days: Array<typeof data[0] | null>; firstDayMonth: number }> = [];
   let currentWeek: Array<typeof data[0] | null> = [];
 
-  // Pad the beginning of the year to align with weekdays
+  // Pad the beginning
   const firstDay = data[0] ? parseISO(data[0].date) : new Date();
-  const firstDayOfWeek = firstDay.getDay(); // 0 = Sunday
+  const firstDayOfWeek = firstDay.getDay();
   for (let i = 0; i < firstDayOfWeek; i++) {
     currentWeek.push(null);
   }
@@ -205,68 +217,82 @@ function FullYearGrid({ data, habits }: { data: Array<{ date: string; completion
   data.forEach((day) => {
     currentWeek.push(day);
     if (currentWeek.length === 7) {
-      weeks.push(currentWeek);
+      // Find first non-null day to determine month
+      const firstNonNull = currentWeek.find(d => d !== null);
+      const monthNum = firstNonNull ? parseISO(firstNonNull.date).getMonth() : 0;
+      weeks.push({ days: currentWeek, firstDayMonth: monthNum });
       currentWeek = [];
     }
   });
 
   // Pad the last week
-  while (currentWeek.length > 0 && currentWeek.length < 7) {
-    currentWeek.push(null);
-  }
   if (currentWeek.length > 0) {
-    weeks.push(currentWeek);
+    while (currentWeek.length < 7) {
+      currentWeek.push(null);
+    }
+    const firstNonNull = currentWeek.find(d => d !== null);
+    const monthNum = firstNonNull ? parseISO(firstNonNull.date).getMonth() : 11;
+    weeks.push({ days: currentWeek, firstDayMonth: monthNum });
   }
 
-  const getColor = (day: typeof data[0] | null) => {
-    if (!day) return 'bg-transparent';
-    if (day.isFuture) return 'bg-muted/30';
-    if (day.completion === 0) return 'bg-muted';
-    if (day.completion < 25) return 'bg-primary/20';
-    if (day.completion < 50) return 'bg-primary/40';
-    if (day.completion < 75) return 'bg-primary/60';
-    if (day.completion < 100) return 'bg-primary/80';
-    return 'bg-primary';
-  };
-
+  // Calculate month label positions
   const months = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
+  const monthPositions: Array<{ month: string; startWeek: number }> = [];
+  let lastMonth = -1;
+  weeks.forEach((week, idx) => {
+    if (week.firstDayMonth !== lastMonth) {
+      monthPositions.push({ month: months[week.firstDayMonth], startWeek: idx });
+      lastMonth = week.firstDayMonth;
+    }
+  });
+
+  const cellSize = 11;
+  const gap = 2;
+  const totalWidth = weeks.length * (cellSize + gap);
 
   return (
-    <div className="overflow-x-auto pb-1">
+    <div className="w-full">
       {/* Month labels */}
-      <div className="flex mb-1 text-[10px] text-muted-foreground pl-4">
-        {months.map((month) => (
-          <div key={month} className="flex-1 min-w-0">{month}</div>
+      <div className="relative h-4 mb-1 ml-5" style={{ width: totalWidth }}>
+        {monthPositions.map((pos, idx) => (
+          <span
+            key={pos.month + idx}
+            className="absolute text-[10px] text-muted-foreground"
+            style={{ left: pos.startWeek * (cellSize + gap) }}
+          >
+            {pos.month}
+          </span>
         ))}
       </div>
       <div className="flex gap-[2px]">
         {/* Day labels */}
-        <div className="flex flex-col gap-[2px] text-[9px] text-muted-foreground pr-0.5">
-          <span className="h-[10px] leading-[10px]"></span>
-          <span className="h-[10px] leading-[10px]">M</span>
-          <span className="h-[10px] leading-[10px]"></span>
-          <span className="h-[10px] leading-[10px]">W</span>
-          <span className="h-[10px] leading-[10px]"></span>
-          <span className="h-[10px] leading-[10px]">F</span>
-          <span className="h-[10px] leading-[10px]"></span>
+        <div className="flex flex-col gap-[2px] text-[9px] text-muted-foreground pr-0.5 w-4">
+          <span style={{ height: cellSize }}></span>
+          <span style={{ height: cellSize }} className="flex items-center">M</span>
+          <span style={{ height: cellSize }}></span>
+          <span style={{ height: cellSize }} className="flex items-center">M</span>
+          <span style={{ height: cellSize }}></span>
+          <span style={{ height: cellSize }} className="flex items-center">F</span>
+          <span style={{ height: cellSize }}></span>
         </div>
         {/* Grid */}
-        <div className="flex gap-[2px] flex-1">
+        <div className="flex gap-[2px]">
           {weeks.map((week, weekIndex) => (
             <div key={weekIndex} className="flex flex-col gap-[2px]">
-              {week.map((day, dayIndex) => (
+              {week.days.map((day, dayIndex) => (
                 <TooltipProvider key={dayIndex} delayDuration={100}>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <div
-                        className={`w-[10px] h-[10px] rounded-[2px] transition-colors ${getColor(day)} ${
+                        style={{ width: cellSize, height: cellSize }}
+                        className={`rounded-[2px] transition-colors ${getCompletionColor(day)} ${
                           day?.isToday ? 'ring-1 ring-primary ring-offset-1 ring-offset-background' : ''
                         }`}
                       />
                     </TooltipTrigger>
                     {day && (
                       <TooltipContent side="top" className="text-xs">
-                        <p className="font-medium">{format(parseISO(day.date), 'd. MMM', { locale: de })}</p>
+                        <p className="font-medium">{format(parseISO(day.date), 'd. MMMM', { locale: de })}</p>
                         {day.isFuture ? (
                           <p className="text-muted-foreground">Zukünftig</p>
                         ) : (
@@ -281,6 +307,55 @@ function FullYearGrid({ data, habits }: { data: Array<{ date: string; completion
           ))}
         </div>
       </div>
+    </div>
+  );
+}
+
+// Mobile Year Grid - 12 month blocks in a grid layout (no scrolling!)
+function MobileYearGrid({ data, habits }: { data: Array<{ date: string; completion: number; count: number; isFuture: boolean; isToday: boolean }>; habits: GewohnheitenVerwaltung[] }) {
+  // Group data by month
+  const monthsData: Array<Array<typeof data[0]>> = Array.from({ length: 12 }, () => []);
+  data.forEach(day => {
+    const month = parseISO(day.date).getMonth();
+    monthsData[month].push(day);
+  });
+
+  const monthNames = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
+
+  return (
+    <div className="grid grid-cols-4 gap-2">
+      {monthsData.map((days, monthIndex) => (
+        <div key={monthIndex} className="bg-muted/20 rounded-md p-1.5">
+          <p className="text-[9px] text-muted-foreground mb-1 font-medium">{monthNames[monthIndex]}</p>
+          <div className="grid grid-cols-7 gap-[1px]">
+            {/* Pad beginning of month to correct weekday */}
+            {days[0] && Array.from({ length: parseISO(days[0].date).getDay() }, (_, i) => (
+              <div key={`pad-${i}`} className="w-2 h-2" />
+            ))}
+            {days.map((day, dayIndex) => (
+              <TooltipProvider key={dayIndex} delayDuration={100}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div
+                      className={`w-2 h-2 rounded-[1px] ${getCompletionColor(day)} ${
+                        day.isToday ? 'ring-1 ring-primary' : ''
+                      }`}
+                    />
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="text-xs">
+                    <p className="font-medium">{format(parseISO(day.date), 'd. MMM', { locale: de })}</p>
+                    {day.isFuture ? (
+                      <p className="text-muted-foreground">Zukünftig</p>
+                    ) : (
+                      <p className="text-muted-foreground">{day.count}/{habits.length}</p>
+                    )}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            ))}
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
@@ -626,10 +701,10 @@ export default function Dashboard() {
             </p>
           </div>
 
-          {/* Year Grid - HERO element on mobile */}
+          {/* Year Grid - HERO element on mobile - special 12-month grid view */}
           <Card className="bg-card/50">
             <CardContent className="p-3">
-              <FullYearGrid data={fullYearData} habits={habits} />
+              <MobileYearGrid data={fullYearData} habits={habits} />
             </CardContent>
           </Card>
 
@@ -697,7 +772,7 @@ export default function Dashboard() {
               <CardTitle className="text-lg">Jahresübersicht {getYear(new Date())}</CardTitle>
             </CardHeader>
             <CardContent>
-              <FullYearGrid data={fullYearData} habits={habits} />
+              <DesktopYearGrid data={fullYearData} habits={habits} />
               {/* Legend */}
               <div className="flex items-center gap-3 mt-4 text-xs text-muted-foreground justify-end">
                 <span>Weniger</span>
