@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import type { GewohnheitenVerwaltung, TaeglicheEintraege } from '@/types/app';
 import { APP_IDS } from '@/types/app';
 import { LivingAppsService, extractRecordId, createRecordUrl } from '@/services/livingAppsService';
-import { format, parseISO, startOfWeek, addDays, startOfYear, getDayOfYear, getYear, differenceInDays, eachDayOfInterval, subDays } from 'date-fns';
+import { format, parseISO, addDays, startOfYear, endOfYear, getDayOfYear, getYear, differenceInDays, eachDayOfInterval, isBefore, isAfter, isToday as isDateToday } from 'date-fns';
 import { de } from 'date-fns/locale';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,11 +13,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Calendar, Flame, Plus, Settings, Check, AlertCircle, RefreshCw, TrendingUp, Target, Award } from 'lucide-react';
+import { Flame, Plus, Settings, Check, AlertCircle, RefreshCw, TrendingUp, Target, Award, Quote } from 'lucide-react';
 
 // Get today's date in YYYY-MM-DD format
 function getTodayDate(): string {
@@ -85,10 +83,11 @@ function calculateLongestStreak(entries: TaeglicheEintraege[]): number {
   return longestStreak;
 }
 
-// Calculate year overview data (GitHub-style contribution grid)
-function getYearData(entries: TaeglicheEintraege[], habits: GewohnheitenVerwaltung[]): Array<{ date: string; completion: number; count: number }> {
+// Calculate FULL year overview data (including future days)
+function getFullYearData(entries: TaeglicheEintraege[], habits: GewohnheitenVerwaltung[]): Array<{ date: string; completion: number; count: number; isFuture: boolean; isToday: boolean }> {
   const today = new Date();
   const yearStart = startOfYear(today);
+  const yearEnd = endOfYear(today);
   const totalHabits = habits.length || 1;
 
   // Create map of completions per day
@@ -100,13 +99,15 @@ function getYearData(entries: TaeglicheEintraege[], habits: GewohnheitenVerwaltu
     }
   });
 
-  // Generate data for each day of the year up to today
-  const days = eachDayOfInterval({ start: yearStart, end: today });
+  // Generate data for ENTIRE year
+  const days = eachDayOfInterval({ start: yearStart, end: yearEnd });
   return days.map(date => {
     const dateStr = format(date, 'yyyy-MM-dd');
     const count = completionMap.get(dateStr) || 0;
     const completion = Math.min(Math.round((count / totalHabits) * 100), 100);
-    return { date: dateStr, completion, count };
+    const isFuture = isAfter(date, today);
+    const isToday = isDateToday(date);
+    return { date: dateStr, completion, count, isFuture, isToday };
   });
 }
 
@@ -119,9 +120,7 @@ function calculateConsistency(entries: TaeglicheEintraege[]): { rate: number; ac
     }
   });
 
-  const today = new Date();
-  const yearStart = startOfYear(today);
-  const totalDays = getDayOfYear(today);
+  const totalDays = getDayOfYear(new Date());
   const activeDays = completedDates.size;
   const rate = Math.round((activeDays / totalDays) * 100);
 
@@ -131,18 +130,18 @@ function calculateConsistency(entries: TaeglicheEintraege[]): { rate: number; ac
 // Loading state component
 function LoadingState() {
   return (
-    <div className="min-h-screen bg-background p-4 md:p-8">
+    <div className="min-h-screen bg-background p-4">
       <div className="max-w-6xl mx-auto">
-        <Skeleton className="h-24 w-full mb-8 rounded-lg" />
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <Skeleton className="h-8 w-48 mb-4" />
+        <Skeleton className="h-40 w-full mb-4 rounded-lg" />
+        <div className="grid grid-cols-4 gap-2 mb-4">
           {[1, 2, 3, 4].map(i => (
-            <Skeleton key={i} className="h-24 rounded-lg" />
+            <Skeleton key={i} className="h-16 rounded-lg" />
           ))}
         </div>
-        <Skeleton className="h-48 w-full rounded-lg mb-8" />
-        <div className="space-y-3">
+        <div className="space-y-2">
           {[1, 2, 3].map(i => (
-            <Skeleton key={i} className="h-20 w-full rounded-lg" />
+            <Skeleton key={i} className="h-16 w-full rounded-lg" />
           ))}
         </div>
       </div>
@@ -179,7 +178,7 @@ function EmptyState({ onAddHabit }: { onAddHabit: () => void }) {
         </div>
         <h2 className="text-2xl font-semibold mb-2">Keine Gewohnheiten</h2>
         <p className="text-muted-foreground mb-6">
-          Starte mit dem Tracken deiner ersten Gewohnheit und baue positive Routinen auf.
+          Starte mit dem Tracken deiner ersten Gewohnheit.
         </p>
         <Button onClick={onAddHabit} className="gap-2">
           <Plus className="h-4 w-4" />
@@ -190,11 +189,11 @@ function EmptyState({ onAddHabit }: { onAddHabit: () => void }) {
   );
 }
 
-// Year Grid Component (GitHub-style contribution graph)
-function YearGrid({ data, habits }: { data: Array<{ date: string; completion: number; count: number }>; habits: GewohnheitenVerwaltung[] }) {
+// Full Year Grid Component (GitHub-style, shows entire year)
+function FullYearGrid({ data, habits }: { data: Array<{ date: string; completion: number; count: number; isFuture: boolean; isToday: boolean }>; habits: GewohnheitenVerwaltung[] }) {
   // Group by weeks for the grid
-  const weeks: Array<Array<{ date: string; completion: number; count: number } | null>> = [];
-  let currentWeek: Array<{ date: string; completion: number; count: number } | null> = [];
+  const weeks: Array<Array<typeof data[0] | null>> = [];
+  let currentWeek: Array<typeof data[0] | null> = [];
 
   // Pad the beginning of the year to align with weekdays
   const firstDay = data[0] ? parseISO(data[0].date) : new Date();
@@ -219,57 +218,60 @@ function YearGrid({ data, habits }: { data: Array<{ date: string; completion: nu
     weeks.push(currentWeek);
   }
 
-  const getColor = (completion: number) => {
-    if (completion === 0) return 'bg-muted';
-    if (completion < 25) return 'bg-primary/20';
-    if (completion < 50) return 'bg-primary/40';
-    if (completion < 75) return 'bg-primary/60';
-    if (completion < 100) return 'bg-primary/80';
+  const getColor = (day: typeof data[0] | null) => {
+    if (!day) return 'bg-transparent';
+    if (day.isFuture) return 'bg-muted/30';
+    if (day.completion === 0) return 'bg-muted';
+    if (day.completion < 25) return 'bg-primary/20';
+    if (day.completion < 50) return 'bg-primary/40';
+    if (day.completion < 75) return 'bg-primary/60';
+    if (day.completion < 100) return 'bg-primary/80';
     return 'bg-primary';
   };
 
   const months = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
-  const today = new Date();
-  const currentMonth = today.getMonth();
 
   return (
-    <div className="overflow-x-auto pb-2">
+    <div className="overflow-x-auto pb-1">
       {/* Month labels */}
-      <div className="flex mb-1 text-xs text-muted-foreground">
-        <div className="w-6" /> {/* Spacer for day labels */}
-        {months.slice(0, currentMonth + 1).map((month) => (
-          <div key={month} className="flex-1 min-w-0 text-center">{month}</div>
+      <div className="flex mb-1 text-[10px] text-muted-foreground pl-4">
+        {months.map((month) => (
+          <div key={month} className="flex-1 min-w-0">{month}</div>
         ))}
       </div>
-      <div className="flex gap-0.5">
+      <div className="flex gap-[2px]">
         {/* Day labels */}
-        <div className="flex flex-col gap-0.5 text-xs text-muted-foreground pr-1">
-          <span className="h-3 leading-3"></span>
-          <span className="h-3 leading-3">Mo</span>
-          <span className="h-3 leading-3"></span>
-          <span className="h-3 leading-3">Mi</span>
-          <span className="h-3 leading-3"></span>
-          <span className="h-3 leading-3">Fr</span>
-          <span className="h-3 leading-3"></span>
+        <div className="flex flex-col gap-[2px] text-[9px] text-muted-foreground pr-0.5">
+          <span className="h-[10px] leading-[10px]"></span>
+          <span className="h-[10px] leading-[10px]">M</span>
+          <span className="h-[10px] leading-[10px]"></span>
+          <span className="h-[10px] leading-[10px]">W</span>
+          <span className="h-[10px] leading-[10px]"></span>
+          <span className="h-[10px] leading-[10px]">F</span>
+          <span className="h-[10px] leading-[10px]"></span>
         </div>
         {/* Grid */}
-        <div className="flex gap-0.5">
+        <div className="flex gap-[2px] flex-1">
           {weeks.map((week, weekIndex) => (
-            <div key={weekIndex} className="flex flex-col gap-0.5">
+            <div key={weekIndex} className="flex flex-col gap-[2px]">
               {week.map((day, dayIndex) => (
                 <TooltipProvider key={dayIndex} delayDuration={100}>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <div
-                        className={`w-3 h-3 rounded-sm transition-colors ${
-                          day ? getColor(day.completion) : 'bg-transparent'
+                        className={`w-[10px] h-[10px] rounded-[2px] transition-colors ${getColor(day)} ${
+                          day?.isToday ? 'ring-1 ring-primary ring-offset-1 ring-offset-background' : ''
                         }`}
                       />
                     </TooltipTrigger>
                     {day && (
                       <TooltipContent side="top" className="text-xs">
-                        <p className="font-medium">{format(parseISO(day.date), 'd. MMMM yyyy', { locale: de })}</p>
-                        <p className="text-muted-foreground">{day.count} von {habits.length} erledigt ({day.completion}%)</p>
+                        <p className="font-medium">{format(parseISO(day.date), 'd. MMM', { locale: de })}</p>
+                        {day.isFuture ? (
+                          <p className="text-muted-foreground">Zukünftig</p>
+                        ) : (
+                          <p className="text-muted-foreground">{day.count}/{habits.length} ({day.completion}%)</p>
+                        )}
                       </TooltipContent>
                     )}
                   </Tooltip>
@@ -279,19 +281,17 @@ function YearGrid({ data, habits }: { data: Array<{ date: string; completion: nu
           ))}
         </div>
       </div>
-      {/* Legend */}
-      <div className="flex items-center gap-2 mt-3 text-xs text-muted-foreground justify-end">
-        <span>Weniger</span>
-        <div className="flex gap-0.5">
-          <div className="w-3 h-3 rounded-sm bg-muted" />
-          <div className="w-3 h-3 rounded-sm bg-primary/20" />
-          <div className="w-3 h-3 rounded-sm bg-primary/40" />
-          <div className="w-3 h-3 rounded-sm bg-primary/60" />
-          <div className="w-3 h-3 rounded-sm bg-primary/80" />
-          <div className="w-3 h-3 rounded-sm bg-primary" />
-        </div>
-        <span>Mehr</span>
-      </div>
+    </div>
+  );
+}
+
+// Compact Stat Pill component for mobile
+function StatPill({ icon: Icon, value, label }: { icon: typeof Flame; value: string | number; label: string }) {
+  return (
+    <div className="flex flex-col items-center gap-0.5 p-2 bg-card rounded-lg border border-border">
+      <Icon className="w-4 h-4 text-primary" />
+      <span className="text-lg font-bold leading-tight">{value}</span>
+      <span className="text-[10px] text-muted-foreground leading-tight">{label}</span>
     </div>
   );
 }
@@ -413,7 +413,57 @@ function AddEntryDialog({
   );
 }
 
-// Habit Card component
+// Compact Habit Row for mobile
+function HabitRow({
+  habit,
+  entries,
+  onToggleToday,
+}: {
+  habit: GewohnheitenVerwaltung;
+  entries: TaeglicheEintraege[];
+  onToggleToday: (habitId: string, currentStatus: boolean, entryId?: string) => void;
+}) {
+  const todayStr = getTodayDate();
+
+  const todayEntry = entries.find(entry => {
+    const habitId = extractRecordId(entry.fields.gewohnheit);
+    const entryDate = entry.fields.datum?.split('T')[0];
+    return habitId === habit.record_id && entryDate === todayStr && entry.fields.ausgefuehrt;
+  });
+  const isCompletedToday = !!todayEntry;
+
+  // Calculate streak for this habit
+  const habitStreak = calculateStreak(entries.filter(entry => {
+    const habitId = extractRecordId(entry.fields.gewohnheit);
+    return habitId === habit.record_id;
+  }));
+
+  return (
+    <div
+      className="flex items-center gap-3 p-3 bg-card rounded-lg border border-border hover:border-primary/50 transition-colors cursor-pointer"
+      onClick={() => onToggleToday(habit.record_id, isCompletedToday, todayEntry?.record_id)}
+    >
+      <div
+        className={`w-9 h-9 rounded-full flex items-center justify-center transition-all flex-shrink-0 ${
+          isCompletedToday
+            ? 'bg-primary text-primary-foreground'
+            : 'bg-muted text-muted-foreground'
+        }`}
+      >
+        <Check className="w-5 h-5" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <h3 className="font-medium text-sm truncate">{habit.fields.gewohnheit_name}</h3>
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <Flame className="w-3 h-3" />
+          <span>{habitStreak} Tage</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Desktop Habit Card
 function HabitCard({
   habit,
   entries,
@@ -425,7 +475,6 @@ function HabitCard({
 }) {
   const todayStr = getTodayDate();
 
-  // Check if completed today
   const todayEntry = entries.find(entry => {
     const habitId = extractRecordId(entry.fields.gewohnheit);
     const entryDate = entry.fields.datum?.split('T')[0];
@@ -433,7 +482,6 @@ function HabitCard({
   });
   const isCompletedToday = !!todayEntry;
 
-  // Calculate overall consistency for this habit
   const habitEntries = entries.filter(entry => {
     const habitId = extractRecordId(entry.fields.gewohnheit);
     return habitId === habit.record_id && entry.fields.ausgefuehrt;
@@ -442,7 +490,6 @@ function HabitCard({
   const daysSinceStart = getDayOfYear(new Date());
   const consistencyRate = Math.round((uniqueDays / daysSinceStart) * 100);
 
-  // Calculate streak for this habit
   const habitStreak = calculateStreak(entries.filter(entry => {
     const habitId = extractRecordId(entry.fields.gewohnheit);
     return habitId === habit.record_id;
@@ -488,26 +535,6 @@ function HabitCard({
   );
 }
 
-// Stat Card component
-function StatCard({ icon: Icon, label, value, subtext }: { icon: typeof Flame; label: string; value: string | number; subtext?: string }) {
-  return (
-    <Card>
-      <CardContent className="p-4">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-            <Icon className="w-5 h-5 text-primary" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-xs text-muted-foreground">{label}</p>
-            <p className="text-xl font-semibold">{value}</p>
-            {subtext && <p className="text-xs text-muted-foreground">{subtext}</p>}
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
 // Main Dashboard component
 export default function Dashboard() {
   const [habits, setHabits] = useState<GewohnheitenVerwaltung[]>([]);
@@ -543,7 +570,7 @@ export default function Dashboard() {
   const consistency = useMemo(() => calculateConsistency(entries), [entries]);
   const currentStreak = useMemo(() => calculateStreak(entries), [entries]);
   const longestStreak = useMemo(() => calculateLongestStreak(entries), [entries]);
-  const yearData = useMemo(() => getYearData(entries, habits), [entries, habits]);
+  const fullYearData = useMemo(() => getFullYearData(entries, habits), [entries, habits]);
 
   // Total completions this year
   const totalCompletions = useMemo(() => {
@@ -575,83 +602,50 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-6xl mx-auto px-4 py-6 md:py-8">
-        {/* Header with Seneca Quote */}
-        <header className="mb-8">
-          <div className="flex items-center justify-between mb-6">
-            <h1 className="text-2xl md:text-3xl font-semibold">Gewohnheitstracker</h1>
-            <div className="flex items-center gap-2">
-              <Button className="gap-2" onClick={() => setDialogOpen(true)}>
-                <Plus className="w-4 h-4" />
-                <span className="hidden sm:inline">Eintrag hinzufügen</span>
-              </Button>
-              <Button variant="ghost" size="icon">
-                <Settings className="h-5 w-5" />
-              </Button>
-            </div>
+      {/* ===== MOBILE LAYOUT ===== */}
+      <div className="md:hidden">
+        {/* Compact Header */}
+        <header className="flex items-center justify-between px-4 py-3 sticky top-0 bg-background/95 backdrop-blur z-10 border-b border-border">
+          <h1 className="text-lg font-semibold">{getYear(new Date())}</h1>
+          <div className="flex items-center gap-1">
+            <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => setDialogOpen(true)}>
+              <Plus className="w-4 h-4" />
+            </Button>
+            <Button size="icon" variant="ghost" className="h-8 w-8">
+              <Settings className="w-4 h-4" />
+            </Button>
           </div>
-
-          {/* Seneca Quote */}
-          <Card className="bg-gradient-to-r from-primary/5 to-primary/10 border-primary/20">
-            <CardContent className="p-6">
-              <blockquote className="text-lg md:text-xl italic text-foreground/90 leading-relaxed">
-                „Es ist nicht wenig Zeit, die wir haben, sondern es ist viel Zeit, die wir nicht nutzen."
-              </blockquote>
-              <p className="text-sm text-muted-foreground mt-3">― Seneca</p>
-            </CardContent>
-          </Card>
         </header>
 
-        {/* Consistency Stats */}
-        <section className="mb-8">
-          <h2 className="text-lg font-semibold mb-4">Deine Konsistenz {getYear(new Date())}</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-            <StatCard
-              icon={TrendingUp}
-              label="Konsistenz"
-              value={`${consistency.rate}%`}
-              subtext={`${consistency.activeDays} von ${consistency.totalDays} Tagen`}
-            />
-            <StatCard
-              icon={Flame}
-              label="Aktuelle Serie"
-              value={`${currentStreak} Tage`}
-            />
-            <StatCard
-              icon={Award}
-              label="Längste Serie"
-              value={`${longestStreak} Tage`}
-            />
-            <StatCard
-              icon={Target}
-              label="Abgeschlossen"
-              value={totalCompletions}
-              subtext="Gewohnheiten dieses Jahr"
-            />
+        <div className="px-4 py-3 space-y-4">
+          {/* Seneca Quote - Compact, elegant one-liner with icon */}
+          <div className="flex items-start gap-2 text-muted-foreground">
+            <Quote className="w-4 h-4 mt-0.5 flex-shrink-0 text-primary/60" />
+            <p className="text-xs italic leading-relaxed">
+              „Es ist nicht wenig Zeit, die wir haben, sondern es ist viel Zeit, die wir nicht nutzen." <span className="text-primary/60">— Seneca</span>
+            </p>
           </div>
-        </section>
 
-        {/* Year Overview */}
-        <section className="mb-8">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="w-5 h-5" />
-                Jahresübersicht {getYear(new Date())}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <YearGrid data={yearData} habits={habits} />
+          {/* Year Grid - HERO element on mobile */}
+          <Card className="bg-card/50">
+            <CardContent className="p-3">
+              <FullYearGrid data={fullYearData} habits={habits} />
             </CardContent>
           </Card>
-        </section>
 
-        {/* Habits Grid */}
-        <section className="pb-24 md:pb-8">
-          <h2 className="text-lg font-semibold mb-4">Deine Gewohnheiten</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+          {/* Compact Stats Row */}
+          <div className="grid grid-cols-4 gap-2">
+            <StatPill icon={TrendingUp} value={`${consistency.rate}%`} label="Konsistenz" />
+            <StatPill icon={Flame} value={currentStreak} label="Serie" />
+            <StatPill icon={Award} value={longestStreak} label="Rekord" />
+            <StatPill icon={Target} value={totalCompletions} label="Gesamt" />
+          </div>
+
+          {/* Habits List */}
+          <div className="space-y-2 pb-20">
+            <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Heute</h2>
             {habits.map(habit => (
-              <HabitCard
+              <HabitRow
                 key={habit.record_id}
                 habit={habit}
                 entries={entries}
@@ -659,17 +653,133 @@ export default function Dashboard() {
               />
             ))}
           </div>
-        </section>
+        </div>
 
-        {/* Mobile Fixed Bottom Button */}
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-background border-t border-border md:hidden">
+        {/* Fixed Bottom Action Button */}
+        <div className="fixed bottom-0 left-0 right-0 p-3 bg-background/95 backdrop-blur border-t border-border">
           <Button
-            className="w-full h-12 text-base gap-2"
+            className="w-full h-11 text-sm gap-2"
             onClick={() => setDialogOpen(true)}
           >
-            <Plus className="w-5 h-5" />
+            <Plus className="w-4 h-4" />
             Eintrag hinzufügen
           </Button>
+        </div>
+      </div>
+
+      {/* ===== DESKTOP LAYOUT ===== */}
+      <div className="hidden md:block">
+        <div className="max-w-6xl mx-auto px-6 py-8">
+          {/* Header */}
+          <header className="flex items-center justify-between mb-8">
+            <div>
+              <h1 className="text-3xl font-bold">Gewohnheitstracker</h1>
+              <p className="text-muted-foreground mt-1 flex items-center gap-2">
+                <Quote className="w-4 h-4" />
+                <span className="italic">„Es ist nicht wenig Zeit, die wir haben, sondern es ist viel Zeit, die wir nicht nutzen."</span>
+                <span className="text-primary">— Seneca</span>
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button className="gap-2" onClick={() => setDialogOpen(true)}>
+                <Plus className="w-4 h-4" />
+                Eintrag hinzufügen
+              </Button>
+              <Button variant="ghost" size="icon">
+                <Settings className="h-5 w-5" />
+              </Button>
+            </div>
+          </header>
+
+          {/* Year Overview Card */}
+          <Card className="mb-8">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg">Jahresübersicht {getYear(new Date())}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <FullYearGrid data={fullYearData} habits={habits} />
+              {/* Legend */}
+              <div className="flex items-center gap-3 mt-4 text-xs text-muted-foreground justify-end">
+                <span>Weniger</span>
+                <div className="flex gap-1">
+                  <div className="w-3 h-3 rounded-sm bg-muted" />
+                  <div className="w-3 h-3 rounded-sm bg-primary/20" />
+                  <div className="w-3 h-3 rounded-sm bg-primary/40" />
+                  <div className="w-3 h-3 rounded-sm bg-primary/60" />
+                  <div className="w-3 h-3 rounded-sm bg-primary/80" />
+                  <div className="w-3 h-3 rounded-sm bg-primary" />
+                </div>
+                <span>Mehr</span>
+                <span className="border-l border-border pl-3">Zukünftig</span>
+                <div className="w-3 h-3 rounded-sm bg-muted/30" />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Stats Grid */}
+          <div className="grid grid-cols-4 gap-4 mb-8">
+            <Card>
+              <CardContent className="p-4 flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                  <TrendingUp className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Konsistenz</p>
+                  <p className="text-xl font-bold">{consistency.rate}%</p>
+                  <p className="text-xs text-muted-foreground">{consistency.activeDays}/{consistency.totalDays} Tage</p>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4 flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Flame className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Aktuelle Serie</p>
+                  <p className="text-xl font-bold">{currentStreak} Tage</p>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4 flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Award className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Längste Serie</p>
+                  <p className="text-xl font-bold">{longestStreak} Tage</p>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4 flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Target className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Abgeschlossen</p>
+                  <p className="text-xl font-bold">{totalCompletions}</p>
+                  <p className="text-xs text-muted-foreground">dieses Jahr</p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Habits Grid */}
+          <section>
+            <h2 className="text-lg font-semibold mb-4">Deine Gewohnheiten</h2>
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+              {habits.map(habit => (
+                <HabitCard
+                  key={habit.record_id}
+                  habit={habit}
+                  entries={entries}
+                  onToggleToday={handleToggleToday}
+                />
+              ))}
+            </div>
+          </section>
         </div>
       </div>
 
