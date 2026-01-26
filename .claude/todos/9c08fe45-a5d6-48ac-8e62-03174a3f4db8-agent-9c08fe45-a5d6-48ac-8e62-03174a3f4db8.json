@@ -1,17 +1,1 @@
-[
-  {
-    "content": "Create design_brief.md for Gewohnheitstracker (Habit Tracker) Dashboard",
-    "status": "completed",
-    "activeForm": "Creating design_brief.md for Gewohnheitstracker Dashboard"
-  },
-  {
-    "content": "Implement Dashboard.tsx following design_brief.md exactly",
-    "status": "completed",
-    "activeForm": "Implementing Dashboard.tsx"
-  },
-  {
-    "content": "Build and deploy using deploy_to_github tool",
-    "status": "in_progress",
-    "activeForm": "Building and deploying to GitHub"
-  }
-]
+[]
