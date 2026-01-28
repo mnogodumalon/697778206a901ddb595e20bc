@@ -176,3 +176,39 @@ export function MobileTimeCard({
     </Card>
   );
 }
+
+// Compact Total Time Badge - integrates into Year Overview
+export function TotalTimeBadge({
+  timePerHabit,
+  compact = false,
+}: {
+  timePerHabit: Map<string, number>;
+  compact?: boolean;
+}) {
+  const totalMinutes = Array.from(timePerHabit.values()).reduce((sum, t) => sum + t, 0);
+  const hours = Math.floor(totalMinutes / 60);
+  const mins = totalMinutes % 60;
+
+  const timeDisplay = hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
+
+  if (compact) {
+    return (
+      <div className="flex items-center gap-1.5 px-2 py-1 bg-primary/10 rounded-md border border-primary/20">
+        <Timer className="w-3 h-3 text-primary" />
+        <span className="text-xs font-bold text-primary">{timeDisplay}</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-center gap-3 px-4 py-2 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent rounded-lg border border-primary/20">
+      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/20">
+        <Timer className="w-4 h-4 text-primary" />
+      </div>
+      <div>
+        <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Investiert</p>
+        <p className="text-lg font-bold text-primary leading-tight">{timeDisplay}</p>
+      </div>
+    </div>
+  );
+}

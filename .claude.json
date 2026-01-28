@@ -14,5 +14,26 @@
     "mnogodumalon/697778206a901ddb595e20bc": [
       "/home/user/app"
     ]
+  },
+  "projects": {
+    "/home/user/app": {
+      "allowedTools": [],
+      "mcpContextUris": [],
+      "mcpServers": {},
+      "enabledMcpjsonServers": [],
+      "disabledMcpjsonServers": [],
+      "hasTrustDialogAccepted": false,
+      "projectOnboardingSeenCount": 0,
+      "hasClaudeMdExternalIncludesApproved": false,
+      "hasClaudeMdExternalIncludesWarningShown": false,
+      "exampleFiles": [
+        "Dashboard.tsx",
+        "index.html",
+        "index.css",
+        ".claude.json",
+        "tsconfig.app.tsbuildinfo"
+      ],
+      "exampleFilesGeneratedAt": 1769597358770
+    }
   }
 }

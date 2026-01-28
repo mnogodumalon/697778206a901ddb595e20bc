@@ -19,7 +19,7 @@ import {
   DesktopYearGrid,
   MobileYearGrid,
   StatPill,
-  TimeInvestedSection,
+  TotalTimeBadge,
   MobileTimeCard,
   HabitCard,
   HabitRow,
@@ -126,6 +126,10 @@ export default function Dashboard() {
           {/* Year Grid - HERO element on mobile - special 12-month grid view */}
           <Card className="bg-card/50">
             <CardContent className="p-3">
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-sm font-medium text-muted-foreground">{getYear(new Date())}</p>
+                <TotalTimeBadge timePerHabit={timePerHabit} compact />
+              </div>
               <MobileYearGrid data={fullYearData} habits={habits} />
             </CardContent>
           </Card>
@@ -137,9 +141,6 @@ export default function Dashboard() {
             <StatPill icon={Award} value={longestStreak} label="Rekord" />
             <StatPill icon={Target} value={totalCompletions} label="Gesamt" />
           </div>
-
-          {/* Time Invested Card - Mobile */}
-          <MobileTimeCard habits={habits} timePerHabit={timePerHabit} />
 
           {/* Habits List */}
           <div className="space-y-2 pb-20">
@@ -194,7 +195,10 @@ export default function Dashboard() {
           {/* Year Overview Card */}
           <Card className="mb-8">
             <CardHeader className="pb-2">
-              <CardTitle className="text-lg">Jahresübersicht {getYear(new Date())}</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg">Jahresübersicht {getYear(new Date())}</CardTitle>
+                <TotalTimeBadge timePerHabit={timePerHabit} />
+              </div>
             </CardHeader>
             <CardContent>
               <DesktopYearGrid data={fullYearData} habits={habits} />
@@ -264,11 +268,6 @@ export default function Dashboard() {
                 </div>
               </CardContent>
             </Card>
-          </div>
-
-          {/* Time Invested Section - Desktop */}
-          <div className="mb-8">
-            <TimeInvestedSection habits={habits} timePerHabit={timePerHabit} />
           </div>
 
           {/* Habits Grid */}

@@ -18,7 +18,7 @@ export { DesktopYearGrid, MobileYearGrid } from './YearGrid';
 export { StatPill } from './StatPill';
 
 // Time Invested components
-export { TimeInvestedSection, MobileTimeCard } from './TimeInvested';
+export { TimeInvestedSection, MobileTimeCard, TotalTimeBadge } from './TimeInvested';
 
 // Habit components
 export { HabitCard, HabitRow } from './HabitCard';
