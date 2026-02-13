@@ -40,7 +40,7 @@ async def main():
         permission_mode="bypassPermissions",  # Bypass all checks - instant writes for live preview!
         allowed_tools=["Bash", "Write", "Read", "Edit", "Glob", "Grep", "Task", "TodoWrite"],
         cwd="/home/user/app",
-        model="claude-opus-4-5-20251101",
+        model="claude-opus-4-6",
     )
 
     # Session-Resume support

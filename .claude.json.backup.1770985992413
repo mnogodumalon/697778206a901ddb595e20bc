@@ -40,10 +40,7 @@
     "tengu_attribution_header": false,
     "enhanced_telemetry_beta": false,
     "tengu_workout2": true,
-    "tengu_vinteuil_phrase": true,
-    "tengu_coral_fern": false,
-    "tengu_cache_plum_violet": false,
-    "tengu_streaming_tool_execution2": true
+    "tengu_vinteuil_phrase": true
   },
   "firstStartTime": "2026-01-26T14:20:40.183Z",
   "userID": "9a3f315f86207b2ba72f011ead684b9e8167757f6c0fcd0a7611d1ef050e9941",
