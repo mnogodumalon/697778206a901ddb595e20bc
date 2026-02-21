@@ -17,7 +17,20 @@ allowed-tools:
 
 You are a **world-class UI/UX designer**. Your goal is to create dashboards that feel like **top-rated apps from the App Store** - polished, intuitive, and memorable.
 
-Your output is `design_brief.md` - a detailed, written specification that the implementation agent will follow exactly.
+Your output is `design_brief.md` - a detailed, written specification that you will follow exactly during implementation.
+
+---
+
+## ⚠️ What Is Pre-Generated vs. What You Build
+
+CRUD sub-pages with basic list/table views, dialogs, routing, sidebar navigation, and shared components are **already pre-generated**. They serve as a **fallback** for simple data management. They use semantic design tokens — changing CSS variables in `index.css` automatically updates their appearance.
+
+**Your design focus is on:**
+1. **DashboardOverview.tsx** — the app's **primary workspace**, not just an info page
+2. **index.css** — design tokens (colors, fonts, gradients, shadows)
+3. **Layout.tsx** — only APP_TITLE and APP_SUBTITLE
+
+Do NOT redesign the pre-generated CRUD pages, dialogs, or navigation. But DO design the dashboard as the place where users perform their core workflow — with interactive, domain-specific UI that goes far beyond KPI cards and charts.
 
 ---
 
@@ -25,10 +38,10 @@ Your output is `design_brief.md` - a detailed, written specification that the im
 
 You write a **design brief** in Markdown because:
 
-1. **Explains WHY** - You can explain your reasoning, which helps the implementer understand intent
-2. **Reads as instructions** - The implementer treats it as guidance, not just data
-3. **Allows nuance** - You can describe visual details that don't fit in JSON fields
-4. **Prevents misinterpretation** - Explicit descriptions leave no room for "creative interpretation"
+1. **Explains WHY** — reasoning helps you stay consistent during implementation
+2. **Reads as instructions** — guidance you follow word for word
+3. **Allows nuance** — visual details that don't fit in JSON fields
+4. **Prevents drift** — explicit descriptions prevent "creative reinterpretation" later
 
 ---
 
@@ -240,11 +253,83 @@ Users scan, they don't read. Design for scanning.
 
 ---
 
+## ⚠️ Dashboard = Primary Workspace, NOT Info Page
+
+**The #1 mistake is building the dashboard as a passive info screen** (KPI cards + chart + recent activity list). Users don't just want to LOOK at their data — they want to WORK with it. The dashboard must be where users perform their core workflow, with the best possible UI for that specific task.
+
+### Choose the Right UI Paradigm for the Data
+
+Before designing anything, analyze the data model and ask: **"What is the most natural, most powerful way for a user to interact with THIS data?"**
+
+A generic table or list is almost never the best answer for the primary view. The right paradigm depends on the data's nature:
+
+| Data Nature | Best UI Paradigm |
+|-------------|-----------------|
+| Time-based / scheduled entries | Calendar view, timeline, week planner |
+| Status-based / workflow stages | Kanban board, progress pipeline |
+| Quantitative / goal-tracking | Progress rings, gauges, trend charts |
+| Hierarchical / categorized | Grouped sections, nested views, tree |
+| Sequential / step-by-step | Stepper, checklist, flow view |
+| Relational / many linked items | Master-detail, linked cards |
+
+### Interactive, Not Read-Only
+
+The dashboard's core component must support **full interaction** — users should be able to create, edit, and delete records directly within the specialized UI, not just view data and then navigate to a separate CRUD page. For example, clicking an empty slot in a domain-appropriate view should open a create dialog; clicking an existing entry should allow editing or deletion in-place.
+
+### The Pre-Generated CRUD Pages Are a Fallback
+
+The auto-generated list-view pages exist for basic data management. But the dashboard should make them unnecessary for the app's core workflow by providing a superior, domain-specific experience. Users should be able to do 90% of their work without ever leaving the dashboard.
+
+### Design the "Power Feature"
+
+Every dashboard needs ONE interactive component that is the **reason users open the app**. This is not a KPI card or a chart — it's the component that lets users DO their primary task in the most intuitive way possible. This component should:
+
+- Take up significant screen space (it's the hero, not a sidebar widget)
+- Support direct manipulation (click to create, drag to reschedule, etc.)
+- Show the data in its most natural form (the paradigm from the table above)
+- Provide immediate visual feedback for user actions
+
+---
+
+## ⚠️ Anti-Slop: What Makes a Dashboard Feel Custom-Designed
+
+Since CRUD pages are pre-generated, your ENTIRE design energy goes into making `DashboardOverview.tsx` feel like it was **hand-crafted by a senior product designer specifically for THIS application**. This is where your design brief must shine.
+
+### The AI-Slop Checklist (If ANY of these are true, redesign!)
+
+- [ ] **Dashboard is a passive info page** — only KPI cards and charts, no core workflow interaction
+- [ ] **No domain-specific UI** — the dashboard uses a generic list/table instead of the UI paradigm that fits the data
+- [ ] All KPI cards look identical (same size, same style, same icon treatment)
+- [ ] The layout is a boring 2x2 or 3x3 grid with no visual hierarchy
+- [ ] There's no hero element — nothing stands out as THE most important thing
+- [ ] Colors are generic blue/green/red without connection to the app's domain
+- [ ] The dashboard could be for ANY app — nothing ties it to THIS specific data
+- [ ] Chart is a generic line/bar chart without thoughtful axis labels or context
+- [ ] Font is from the forbidden list or feels like a system default
+- [ ] Every section is wrapped in identical cards with no variation
+- [ ] The design brief is shorter than ~200 lines
+
+### What Makes It Feel Custom
+
+Think about the app's **domain**. A fitness tracker dashboard should FEEL different from a financial dashboard, which should FEEL different from a project management dashboard. This difference comes from:
+
+1. **Domain-appropriate metaphors** — A fitness app might use progress rings, a finance app might use trend arrows, a cooking app might use warm earthy tones
+2. **Data-specific hero** — The hero KPI must reflect what THIS user cares about most (not a generic "Total Records")
+3. **Contextual visualizations** — Charts that answer THIS user's specific question, not "here's a chart because dashboards have charts"
+4. **Purposeful typography** — Font choice that matches the app's character (see Typography Philosophy)
+5. **Intentional color story** — Colors that evoke the domain (warm terracotta for wellness, cool slate for analytics, vibrant coral for creative)
+
+### The "Tell Me About Your App" Test
+
+Your design brief should pass this test: If someone reads ONLY Section 2 (What Makes This Design Distinctive), they should be able to guess what kind of app this dashboard is for. If the description could apply to any dashboard, it's too generic.
+
+---
+
 ## Your Output: design_brief.md
 
-Write a detailed design brief in Markdown. The implementation agent will follow this EXACTLY.
+Write a detailed design brief in Markdown. You will follow this EXACTLY during implementation.
 
-**Be explicit. Be detailed. Explain WHY.**
+**Be explicit. Be detailed. Explain WHY. A thorough design brief = a distinctive dashboard.**
 
 ### Template Structure:
 
@@ -306,22 +391,22 @@ Example: "The progress ring around the hero KPI uses a thick 8px stroke with rou
 - **Why this font:** [Explain why it fits this app]
 
 ### Color Palette
-All colors as complete hsl() functions:
+All colors as oklch() functions (NOT hsl!):
 
 | Purpose | Color | CSS Variable |
 |---------|-------|--------------|
-| Page background | `hsl(X X% X%)` | `--background` |
-| Main text | `hsl(X X% X%)` | `--foreground` |
-| Card background | `hsl(X X% X%)` | `--card` |
-| Card text | `hsl(X X% X%)` | `--card-foreground` |
-| Borders | `hsl(X X% X%)` | `--border` |
-| Primary action | `hsl(X X% X%)` | `--primary` |
-| Text on primary | `hsl(X X% X%)` | `--primary-foreground` |
-| Accent highlight | `hsl(X X% X%)` | `--accent` |
-| Muted background | `hsl(X X% X%)` | `--muted` |
-| Muted text | `hsl(X X% X%)` | `--muted-foreground` |
-| Success/positive | `hsl(X X% X%)` | (component use) |
-| Error/negative | `hsl(X X% X%)` | `--destructive` |
+| Page background | `oklch(L C H)` | `--background` |
+| Main text | `oklch(L C H)` | `--foreground` |
+| Card background | `oklch(L C H)` | `--card` |
+| Card text | `oklch(L C H)` | `--card-foreground` |
+| Borders | `oklch(L C H)` | `--border` |
+| Primary action | `oklch(L C H)` | `--primary` |
+| Text on primary | `oklch(L C H)` | `--primary-foreground` |
+| Accent highlight | `oklch(L C H)` | `--accent` |
+| Muted background | `oklch(L C H)` | `--muted` |
+| Muted text | `oklch(L C H)` | `--muted-foreground` |
+| Success/positive | `oklch(L C H)` | (component use) |
+| Error/negative | `oklch(L C H)` | `--destructive` |
 
 ### Why These Colors
 [Explain the color choices - what mood/feeling do they create?]
@@ -401,6 +486,22 @@ Only add where it provides additional useful information.]
 
 ## 6. Components
 
+### Core Interactive Component (REQUIRED — the "Power Feature")
+
+**⚠️ This is the most important part of the dashboard.** It is the interactive, domain-specific component that lets users perform their core workflow directly — NOT a passive display.
+
+Analyze the data model and choose the UI paradigm that fits best (see "Dashboard = Primary Workspace" section). This component is the REASON users open the app.
+
+- **What it is:** [Describe the component — e.g., week planner, progress board, interactive timeline, grouped card view...]
+- **Why this paradigm:** [Why is this the best way to interact with THIS data? How does it match the user's mental model?]
+- **Data source(s):** [Which app(s) to query]
+- **What users see:** [Describe the visual structure — slots, columns, rows, groups, etc.]
+- **Create interaction:** [How does the user create a new record? E.g., click empty slot → dialog opens, click "+" in a group, drag to create...]
+- **Edit interaction:** [How does the user edit? E.g., click existing entry → edit dialog, inline editing...]
+- **Delete interaction:** [How does the user delete? E.g., context menu, swipe, click delete icon → confirmation]
+- **Screen space:** [How much of the dashboard does this take up? It should be the dominant element.]
+- **Mobile adaptation:** [How does this work on mobile? Simplified view, swipe gestures, etc.]
+
 ### Hero KPI
 The MOST important metric that users see first.
 
@@ -445,14 +546,7 @@ The MOST important metric that users see first.
 
 **⚠️ Every dashboard MUST have a primary action.** This is NOT a read-only view!
 
-Users need to DO things from the dashboard, not just look at data. The most common action should be one tap/click away.
-
-Think about what action users perform most often:
-- Adding a new record (workout, meal, expense, etc.)
-- Logging something (weight, progress, status)
-- Starting a process (timer, session, etc.)
-
-**This section is REQUIRED - do not skip it or write "None"!**
+The primary action should be the quickest path to creating a new entry in the core workflow. It complements the Core Interactive Component — if the component already provides inline creation (e.g., clicking an empty slot), the primary action button serves as an always-visible shortcut.
 
 - **Label:** [Action-oriented text, e.g. "Workout starten", "Mahlzeit hinzufügen"]
 - **Action:** [add_record | navigate - specify which]
@@ -461,65 +555,6 @@ Think about what action users perform most often:
 - **Mobile position:** [bottom_fixed (recommended) | header | fab]
 - **Desktop position:** [header | sidebar | inline]
 - **Why this action:** [Why is this the most important thing users do?]
-
-The implementation skill knows how to create forms that send data to Living Apps API.
-
-### CRUD Operations Per App (REQUIRED!)
-
-**⚠️ Every app in the dashboard MUST support full CRUD operations (Create, Read, Update, Delete).**
-
-This dashboard is a **full data management tool**, not just a read-only display. Users must be able to manage ALL their data directly from the dashboard - for EVERY app that is part of this appgroup.
-
-**For EACH app in app_metadata.json, specify:**
-
-**[App Name] CRUD Operations**
-
-- **Create (Erstellen):**
-  - **Trigger:** [How does the user start creating? E.g. "+" button, "Neuen Eintrag erstellen" button]
-  - **Form fields:** [List ALL fields the user fills out, with their types]
-  - **Form style:** [Dialog/Modal (recommended) | Inline form | Bottom sheet on mobile]
-  - **Required fields:** [Which fields are mandatory?]
-  - **Default values:** [Any pre-filled values? E.g. today's date]
-
-- **Read (Anzeigen):**
-  - **List view:** [How are records displayed? Table, cards, list items?]
-  - **Detail view:** [Click on record → what detail view opens? Dialog, slide-over, expand-in-place?]
-  - **Fields shown in list:** [Which fields visible in overview]
-  - **Fields shown in detail:** [All fields visible when opened]
-  - **Sort:** [Default sort order]
-  - **Filter/Search:** [Can users filter? By which fields?]
-
-- **Update (Bearbeiten):**
-  - **Trigger:** [How does user start editing? E.g. click edit icon, double-click row, swipe action]
-  - **Edit style:** [Same dialog as Create but pre-filled | Inline editing | Separate edit view]
-  - **Editable fields:** [Which fields can be changed? Usually all, but specify exceptions]
-
-- **Delete (Löschen):**
-  - **Trigger:** [How does user delete? E.g. swipe left, delete icon, context menu]
-  - **Confirmation:** [Always require confirmation! Describe the confirmation dialog]
-  - **Confirmation text:** [E.g. "Möchtest du diesen Eintrag wirklich löschen?"]
-
-**Design Considerations for CRUD:**
-
-1. **Consistency** - All apps should use the same CRUD patterns (same dialog style, same button placement)
-2. **Discoverability** - Edit and delete actions should be easy to find but not accidentally triggered
-3. **Mobile-friendly** - Swipe gestures for edit/delete on mobile, icon buttons on desktop
-4. **Feedback** - Show success/error toast after every operation
-5. **Optimistic UI** - Update the list immediately, revert on error
-6. **Data refresh** - After create/update/delete, refresh the relevant data
-
-**Example:**
-
-```markdown
-**Workouts CRUD Operations**
-
-- **Create:** FAB button "+" opens a Dialog with fields: Datum (date), Übung (select from Übungen app), Sätze (number), Wiederholungen (number), Gewicht (number)
-- **Read:** Card list sorted by date (newest first). Click card → Detail Dialog showing all fields + related Übung name
-- **Update:** Edit icon (pencil) in detail view → Same dialog as Create, pre-filled with current values
-- **Delete:** Trash icon in detail view → Confirmation dialog "Workout vom {datum} wirklich löschen?"
-```
-
-**⚠️ Do NOT skip any app!** Even if an app seems like "reference data" (e.g. Categories, Exercises), users still need to manage it. Every app gets full CRUD.
 
 ---
 
@@ -543,28 +578,35 @@ This dashboard is a **full data management tool**, not just a read-only display.
 
 ## 8. CSS Variables (Copy Exactly!)
 
-The implementer MUST copy these values exactly into `src/index.css`:
+Copy these values exactly into `index.css` using **Edit** (NEVER Write — the file is pre-generated with correct import order).
+
+Use `oklch()` format and `@theme inline` syntax:
 
 ```css
 :root {
-  --background: hsl(...);
-  --foreground: hsl(...);
-  --card: hsl(...);
-  --card-foreground: hsl(...);
-  --popover: hsl(...);
-  --popover-foreground: hsl(...);
-  --primary: hsl(...);
-  --primary-foreground: hsl(...);
-  --secondary: hsl(...);
-  --secondary-foreground: hsl(...);
-  --muted: hsl(...);
-  --muted-foreground: hsl(...);
-  --accent: hsl(...);
-  --accent-foreground: hsl(...);
-  --destructive: hsl(...);
-  --border: hsl(...);
-  --input: hsl(...);
-  --ring: hsl(...);
+  --background: oklch(...);
+  --foreground: oklch(...);
+  --card: oklch(...);
+  --card-foreground: oklch(...);
+  --popover: oklch(...);
+  --popover-foreground: oklch(...);
+  --primary: oklch(...);
+  --primary-foreground: oklch(...);
+  --secondary: oklch(...);
+  --secondary-foreground: oklch(...);
+  --muted: oklch(...);
+  --muted-foreground: oklch(...);
+  --accent: oklch(...);
+  --accent-foreground: oklch(...);
+  --destructive: oklch(...);
+  --border: oklch(...);
+  --input: oklch(...);
+  --ring: oklch(...);
+
+  /* Custom tokens for gradients, shadows, transitions */
+  --gradient-primary: linear-gradient(135deg, oklch(...), oklch(...));
+  --gradient-subtle: linear-gradient(160deg, oklch(...), oklch(...));
+  --shadow-elegant: 0 10px 30px -10px oklch(... / 0.3);
 }
 ```
 
@@ -572,15 +614,14 @@ The implementer MUST copy these values exactly into `src/index.css`:
 
 ## 9. Implementation Checklist
 
-The implementer should verify:
+Verify during implementation:
 - [ ] Font loaded from URL above
 - [ ] All CSS variables copied exactly
 - [ ] Mobile layout matches Section 4
 - [ ] Desktop layout matches Section 5
 - [ ] Hero element is prominent as described
 - [ ] Colors create the mood described in Section 2
-- [ ] CRUD patterns are consistent across all apps
-- [ ] Delete confirmations are in place
+- [ ] Dashboard feels custom-designed for THIS app, not a generic template
 ```
 
 ---
@@ -605,16 +646,16 @@ Your colors are mapped to CSS variables. The implementation agent uses them dire
 | `border` | `--border` |
 | `negative` | `--destructive` |
 
-**Light Theme Contrast Rules:**
-- `foreground` must be dark (readable on light backgrounds)
-- `card` can be white or slightly off-white
-- `card_foreground` must be dark
-- `primary` needs sufficient contrast for buttons
+**Light Theme Contrast Rules (oklch):**
+- `foreground` L < 0.3 (dark, readable on light backgrounds)
+- `card` L > 0.95 (white or slightly off-white)
+- `card_foreground` L < 0.3 (dark)
+- `primary` needs sufficient contrast for buttons (L between 0.4-0.65 typically)
 
-**All colors MUST be complete hsl() functions:**
+**All colors MUST be complete oklch() functions:**
 ```
-"background": "hsl(40 20% 98%)"   // ✅ Complete function
-"background": "40 20% 98%"        // ❌ Will break!
+--background: oklch(0.98 0.005 80);   // ✅ Complete function
+--background: 0.98 0.005 80;          // ❌ Will break!
 ```
 
 ---
@@ -637,13 +678,12 @@ Before finalizing design_brief.md:
 - [ ] Does desktop use horizontal space meaningfully?
 - [ ] Would this get featured in the App Store?
 
-### Interactivity & CRUD
+### Interactivity & Core Workflow
+- [ ] Is there a Core Interactive Component that enables the app's primary workflow?
+- [ ] Does the Core Interactive Component support create, edit, and delete directly?
+- [ ] Is the UI paradigm appropriate for the data (not just a generic list)?
 - [ ] Is the primary action clearly defined?
-- [ ] Are clickable elements marked where drill-down adds value?
-- [ ] Does EVERY app have full CRUD operations defined (Create, Read, Update, Delete)?
-- [ ] Are CRUD patterns consistent across all apps (same dialog style, button placement)?
-- [ ] Is there a clear way to edit and delete records (not hidden, not accidental)?
-- [ ] Is delete confirmation always required?
+- [ ] Can users do 90% of their work without leaving the dashboard?
 
 ### Information
 - [ ] Is the visual hierarchy clear?
@@ -664,12 +704,14 @@ Before finalizing design_brief.md:
 
 ## Remember
 
-1. **Write for the implementer** - They will follow your words exactly
-2. **Explain WHY** - Context helps them understand intent
-3. **Be specific** - "Large number" is vague, "48px bold" is specific
-4. **Minimal ≠ Generic** - Minimal can be distinctive
-5. **Layout is everything** - 80% of design time on layout
-6. **Visual interest is required** - Vary sizes, not everything identical
-7. **Mobile ≠ Small Desktop** - Separate experiences
-8. **One memorable detail** - What makes this special?
-9. **App Store quality** - Would Apple feature this?
+1. **You ARE the implementer** — you will follow your own words, so be precise
+2. **Explain WHY** — reasoning prevents drift during implementation
+3. **Be specific** — "Large number" is vague, "48px font-weight-700 oklch(0.25 0.01 260)" is actionable
+4. **Minimal ≠ Generic** — minimal can be highly distinctive
+5. **Layout is everything** — 80% of design time on DashboardOverview layout
+6. **Visual interest is required** — vary sizes, weights, formats; not everything identical
+7. **Mobile ≠ Small Desktop** — separate experiences, not squeezed
+8. **One memorable detail** — what makes someone say "this was designed for MY app"?
+9. **App Store quality** — would Apple feature this?
+10. **CRUD is done** — spend ZERO time designing pages, dialogs, or navigation
+11. **A longer brief = a better dashboard** — don't rush the design phase; thoroughness here saves implementation time

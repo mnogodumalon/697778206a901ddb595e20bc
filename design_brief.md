@@ -3,340 +3,335 @@
 ## 1. App Analysis
 
 ### What This App Does
-This is a habit tracking application ("Gewohnheitstracker") that helps users define habits, track daily completion, and monitor time invested. Users manage their habits through three interconnected apps: habit definitions with target times, daily entries tracking execution and time spent, and daily check-ins for quick habit confirmation.
+Gewohnheitstracker is a daily habit tracking app that allows users to manage personal habits (Gewohnheiten), perform daily check-ins to mark which habits they completed, and log individual daily entries per habit with time invested and completion status. The three connected entities form a clear workflow: define habits once, then log daily progress via check-ins or individual entries.
 
 ### Who Uses This
-German-speaking individuals who want to build positive routines. They're likely self-improvement focused, wanting clear visibility into their consistency and progress. They need motivation through visible streaks and completion rates, not just raw data.
+German-speaking individuals focused on personal development and self-discipline — people who want to build consistent routines, track their progress, and see momentum over time. They open the app daily, often in the morning or evening, to log their achievements and reflect on their consistency.
 
 ### The ONE Thing Users Care About Most
-**Today's progress** - Did I complete my habits today? How close am I to my daily goals? This immediate feedback loop is crucial for habit building psychology.
+**Today's habit completion status** — which habits have been done today, which are still pending. This is the first thing a user wants to see when opening the app. Followed closely by streak/consistency trends across the past days.
 
 ### Primary Actions (IMPORTANT!)
-1. **Eintrag hinzufügen** (Add Entry) → Primary Action Button - Users need to quickly log that they've completed a habit and how much time they spent
-2. View habit performance over time
-3. Add new habits to track
+1. **"Eintrag hinzufügen"** — Log that a habit was completed today (create TaeglicheEintraege record) → Primary Action
+2. **Check-In durchführen** — Perform a daily check-in (which habits done + total time) → Secondary
+3. **View habits list** — See which habits exist and their target times → Tertiary
 
 ---
 
 ## 2. What Makes This Design Distinctive
 
 ### Visual Identity
-A **calm, focused aesthetic** with warm, earthy tones that evoke growth and rootedness. The design uses a soft sage green accent that feels organic and encouraging rather than aggressive or gamified. The overall mood is serene productivity - the app should feel like a quiet companion, not a demanding taskmaster.
+Warm sage-green accents on a creamy off-white background evoke the calm, earthy feeling of a wellness journal — sustainable, grounded, and encouraging rather than aggressive. Unlike fitness apps that use electric blue or neon green, this app uses a muted botanical palette: soft sage (`oklch(0.62 0.09 155)`) against warm cream (`oklch(0.98 0.008 80)`). The combination feels like a paper planner brought to life digitally. Typography uses **Nunito Sans** — rounded, friendly, highly legible — reinforcing the approachable, habit-building (not punishing) tone. Progress is shown through **circular progress rings** per habit, giving users an at-a-glance feeling of "how am I doing today" that feels game-like and rewarding.
 
 ### Layout Strategy
-- **Asymmetric hero-first layout**: The hero (today's completion rate) dominates the visual hierarchy with a large circular progress indicator
-- **Size variation creates interest**: The hero is visually 3x larger than secondary KPIs
-- **Grouped secondary metrics**: Time spent and streak information sit together as supporting context
-- **Chart spans full width below**: Creates breathing room and shows progress over time
-- **Recent activity list**: Grounds abstract metrics with concrete entries
+**Asymmetric layout on desktop:** Left column (60%) is the primary workspace — the interactive habit checklist for today. Right column (40%) contains KPI summary cards and a 7-day completion bar chart. This asymmetry makes clear: doing is primary, reviewing is secondary. The hero is the daily habit board, not a number. On mobile, the checklist takes the full viewport — KPIs are compact horizontal pills that scroll.
+
+**Visual interest** comes from: the circular progress rings per habit (not uniform cards), a prominent today's date header that acts as a greeting, and a colored completion ratio bar (green fill animates on load).
 
 ### Unique Element
-The **circular progress ring** for today's completion rate uses a thick 12px stroke with rounded caps and a subtle inner shadow, creating depth. The ring fills with the sage green accent color as habits are completed, with a gentle pulse animation when at 100%. Inside the ring, the percentage is displayed in an oversized, light-weight font (48px, weight 300).
+Each habit in the daily checklist is shown as a **rounded panel with a circular progress ring** on the right showing percentage of target time reached today. When a habit is marked done, the ring fills with sage-green and the panel gets a subtle left border highlight. This visual feedback is the "game-like" reward that makes the app feel alive. Habits not yet done show an unfilled ring in muted gray.
 
 ---
 
 ## 3. Theme & Colors
 
 ### Font
-- **Family:** Plus Jakarta Sans
-- **URL:** `https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap`
-- **Why this font:** Geometric yet warm, with excellent readability at small sizes and beautiful thin weights for large display numbers. Professional but approachable - perfect for a personal productivity tool.
+- **Family:** Nunito Sans
+- **URL:** `https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800&display=swap`
+- **Why this font:** Rounded letterforms create warmth and approachability. The range from 300 (light labels) to 800 (hero numbers) creates strong hierarchy. Perfectly suited for a wellness/habit app where encouragement matters.
 
 ### Color Palette
-All colors as complete hsl() functions:
+All colors as oklch() functions:
 
 | Purpose | Color | CSS Variable |
 |---------|-------|--------------|
-| Page background | `hsl(45 30% 98%)` | `--background` |
-| Main text | `hsl(220 20% 20%)` | `--foreground` |
-| Card background | `hsl(0 0% 100%)` | `--card` |
-| Card text | `hsl(220 20% 20%)` | `--card-foreground` |
-| Borders | `hsl(45 20% 90%)` | `--border` |
-| Primary action | `hsl(152 35% 45%)` | `--primary` |
-| Text on primary | `hsl(0 0% 100%)` | `--primary-foreground` |
-| Accent highlight | `hsl(152 30% 92%)` | `--accent` |
-| Muted background | `hsl(45 20% 96%)` | `--muted` |
-| Muted text | `hsl(220 10% 50%)` | `--muted-foreground` |
-| Success/positive | `hsl(152 50% 40%)` | (component use) |
-| Error/negative | `hsl(0 65% 55%)` | `--destructive` |
+| Page background | `oklch(0.98 0.008 80)` | `--background` |
+| Main text | `oklch(0.22 0.01 260)` | `--foreground` |
+| Card background | `oklch(1.0 0.0 0)` | `--card` |
+| Card text | `oklch(0.22 0.01 260)` | `--card-foreground` |
+| Borders | `oklch(0.90 0.008 80)` | `--border` |
+| Primary action (sage green) | `oklch(0.55 0.10 155)` | `--primary` |
+| Text on primary | `oklch(0.99 0.0 0)` | `--primary-foreground` |
+| Accent highlight | `oklch(0.94 0.04 155)` | `--accent` |
+| Muted background | `oklch(0.96 0.006 80)` | `--muted` |
+| Muted text | `oklch(0.52 0.01 260)` | `--muted-foreground` |
+| Success/positive | `oklch(0.62 0.12 155)` | (component use) |
+| Error/negative | `oklch(0.55 0.18 25)` | `--destructive` |
 
 ### Why These Colors
-The warm off-white background (`hsl(45 30% 98%)`) creates a paper-like, calm canvas. The sage green primary (`hsl(152 35% 45%)`) evokes growth, nature, and positive progress without the aggressive energy of bright green. The dark blue-gray text (`hsl(220 20% 20%)`) is softer than pure black, reducing visual harshness. Together, they create a grounded, encouraging atmosphere.
+Warm cream background (`oklch(0.98 0.008 80)`) with slight yellow undertone feels like quality paper — calming and familiar. The sage-green primary (`oklch(0.55 0.10 155)`) is botanical, not techno-green — it signals growth, consistency, nature. Together they evoke a premium wellness journal or a Moleskine habit tracker. The contrast ratios are strong enough for WCAG AA compliance.
 
 ### Background Treatment
-Soft warm off-white (`hsl(45 30% 98%)`) - a cream undertone that feels inviting like a journal page, not clinical like pure white.
+Warm off-white with slight cream undertone — NOT pure white. The cream warmth prevents visual fatigue during daily use. No gradients or textures on the main background — the whitespace itself is intentional.
+
+### Sidebar Colors
+```css
+--sidebar: oklch(0.18 0.02 155);
+--sidebar-foreground: oklch(0.95 0.01 80);
+--sidebar-border: oklch(0.25 0.02 155);
+--sidebar-accent: oklch(0.28 0.03 155);
+--sidebar-accent-foreground: oklch(0.95 0.01 80);
+--sidebar-primary: oklch(0.55 0.10 155);
+--sidebar-primary-foreground: oklch(0.99 0.0 0);
+```
+Dark forest-green sidebar creates a strong visual anchor — the sidebar feels like a hardcover journal spine.
 
 ---
 
 ## 4. Mobile Layout (Phone)
 
-Design mobile as a COMPLETELY SEPARATE experience, not squeezed desktop.
-
 ### Layout Approach
-The hero dominates the first viewport with the circular progress ring. Visual hierarchy is created through extreme size contrast - the progress ring takes center stage while supporting stats are compact inline elements below it.
+Single-column vertical flow. The greeting + today's date is the first fold anchor. Habit checklist takes center stage. KPI pills scroll horizontally beneath the header. No bottom navigation — the primary action FAB floats at bottom-right.
 
 ### What Users See (Top to Bottom)
 
 **Header:**
-- Left: App title "Gewohnheitstracker" (18px, weight 600)
-- Right: Settings icon (ghost button)
-- Clean, minimal, 56px height with 16px horizontal padding
+Greeting text ("Guten Morgen" / "Guten Abend" depending on time) + today's date in large friendly format: "Samstag, 21. Februar". Below: 3 KPI pills in a horizontal scroll row (Gewohnheiten aktiv, Heute erledigt, Streak).
 
 **Hero Section (The FIRST thing users see):**
-- **Circular progress ring** showing today's habit completion percentage
-- Ring takes up ~200px diameter, centered
-- Inside ring: Large percentage number (48px, weight 300) with label "Heute erledigt" (14px, muted)
-- Below ring: Current date displayed as "Mo, 26. Januar" (16px, weight 500)
-- **Why this is the hero:** Users open the app to see their progress TODAY. This answers their immediate question and provides motivation.
-- Generous padding (32px top/bottom) to give the hero breathing room
+The habit checklist for today. Each habit = a white rounded card (border-radius 16px) with:
+- Habit name in 16px font-weight-700
+- Beschreibung in 13px muted text (1 line truncated)
+- Zielzeit badge (e.g. "30 Min Ziel")
+- A circular SVG progress ring (44px diameter) showing % of target reached today
+- A checkbox-style toggle button (tap to mark done / undo)
+- When done: left border turns sage-green 4px, ring fills green
+Cards have 12px gap, subtle box shadow.
+This section takes ~70% of viewport height via scrollable list.
 
-**Section 2: Quick Stats Row**
-- Horizontal row of 2 compact stat badges (not cards)
-- Left badge: Time invested today "45 Min heute" with clock icon
-- Right badge: Current streak "7 Tage Streak" with flame icon
-- Badges use accent background with muted text
-- Row is scrollable horizontally if needed, but designed to fit
+**Section 2: 7-Tage-Verlauf**
+Compact bar chart (height: 140px on mobile) showing past 7 days. Each bar = number of habits completed that day. X-axis shows Mo/Di/Mi etc. Y-axis suppressed. Bars colored: today = sage-green, past = muted gray-green.
 
-**Section 3: Weekly Progress Chart**
-- Card with title "Diese Woche" (16px, weight 600)
-- Simple bar chart showing last 7 days
-- X-axis: Day abbreviations (Mo, Di, Mi, Do, Fr, Sa, So)
-- Y-axis: Hidden on mobile, bars represent completion percentage
-- Bars use primary color, rounded tops (4px radius)
-- Completed days (100%) have subtle glow
-- Chart height: 140px
-- 16px padding inside card
-
-**Section 4: Gewohnheiten Liste**
-- Section title "Deine Gewohnheiten" (16px, weight 600)
-- List of habit cards, each showing:
-  - Habit name (16px, weight 500)
-  - Target time in muted text "Ziel: 30 Min/Tag"
-  - Checkbox on right side showing today's completion status
-  - Progress bar below showing weekly completion rate
-- Cards are compact (72px height) with 8px gap between
-- Maximum 5 habits shown, scrollable
+**Section 3: Schnell-Eintrag**
+A card with "Eintrag hinzufügen" button and recent entries list (last 3). Compact style.
 
 **Bottom Navigation / Action:**
-- Fixed bottom button bar with primary action
-- **"+ Eintrag hinzufügen"** button (full width minus padding)
-- Button uses primary color, 48px height, 12px border radius
-- 16px padding from edges, 8px from bottom (safe area aware)
+Floating Action Button (FAB) bottom-right: `+` with label "Eintrag" — fixed position. Opens inline form/dialog to create TaeglicheEintraege.
 
 ### Mobile-Specific Adaptations
-- Chart simplified to bar chart (no line chart on mobile)
-- Stats shown as compact inline badges, not cards
-- Habit list shows progress bars instead of detailed numbers
-- Primary action fixed to bottom for thumb reach
+- KPI pills: `overflow-x-auto` horizontal scroll, no wrapping
+- Circular progress rings shrink to 40px on mobile
+- Chart bars reduced height: 120px container
+- No sidebar (handled by Layout.tsx)
 
 ### Touch Targets
-- All interactive elements minimum 44px touch target
-- Checkbox hitbox extends to full habit card height
-- Bottom action button has generous padding
+All habit cards minimum 56px tall for comfortable tap. FAB is 56px × 56px. Toggle checkbox area is 44px × 44px.
 
 ### Interactive Elements
-- Tapping a habit card opens a bottom sheet with:
-  - Detailed stats for that habit
-  - Quick "Mark as done" toggle
-  - Time input slider
-  - History for this specific habit
+Tapping a habit card row (not the toggle button) shows a subtle highlight and expands to show full Beschreibung. Toggle button marks/unmarks done.
 
 ---
 
 ## 5. Desktop Layout
 
 ### Overall Structure
-Three-column layout with the hero in the left column, chart in the center spanning most width, and recent activity on the right. The eye flows: Hero (left) → Stats bar (below hero) → Chart (center) → Activity (right).
+Two-column layout: **Left 60% (primary workspace)** | **Right 40% (analytics + quick-add)**
 
-**Proportions:** 280px left sidebar | flex-1 center content | 320px right sidebar
+Left column: greeting header → today's habit board (the core interactive component)
+Right column: KPI cards (stacked) → 7-day bar chart → recent entries feed
+
+Eye movement: Left column first (action) → Right column (reflection). Classic F-pattern.
+
+Visual interest: The left column is airy with large habit cards; the right column is denser with compact KPI cards and a chart. This density contrast creates visual rhythm.
 
 ### Section Layout
 
-**Header (full width, 72px height):**
-- Left: App title "Gewohnheitstracker" (24px, weight 600)
-- Right: Primary action button "+ Eintrag hinzufügen" and settings icon
-- 32px horizontal padding
+**Top area (full width above columns):**
+Greeting h1 "Guten Morgen, [today's date]" in 28px Nunito Sans 700. Muted subtitle showing weekday + date. This anchors the user in time.
 
-**Left Column (280px, sticky top):**
-- Hero circular progress ring (180px diameter)
-- "Heute erledigt" label and percentage
-- Current date below
-- Gap of 24px
-- Quick stats stacked vertically:
-  - Time card: "Zeit heute" with large number "45 Min"
-  - Streak card: "Aktuelle Serie" with "7 Tage"
-- Both stat cards use card background with subtle shadow
+**Left Column (60%) — Primary Workspace:**
+- Section title: "Heute" with a badge showing "N / M erledigt"
+- Habit cards list (scrollable if many habits)
+  - Each card: white background, 16px border-radius, subtle shadow
+  - Left 4px accent border when completed (sage-green)
+  - Content: habit name (18px 700), beschreibung (14px muted), zielzeit badge
+  - Right: circular progress ring (56px) + toggle button
+  - Hover: slight shadow lift (`shadow-md`), cursor pointer on toggle
 
-**Center Column (flex-1):**
-- Chart card spanning full width
-- Title "Wochenübersicht" with tab options (Diese Woche | Dieser Monat)
-- Area chart showing daily completion rates
-- X-axis: Full day names
-- Y-axis: 0-100%
-- Tooltip on hover showing exact percentage and completed habits
-- 24px padding inside card, 16px gap from header
+**Right Column (40%) — Analytics:**
+- 3 KPI cards: "Aktive Gewohnheiten", "Heute erledigt", "Gesamte Check-ins"
+- Styled differently from habit cards: lighter muted-background, no shadow, compact
+- 7-Tage Bar Chart card (recharts BarChart, 180px height)
+- "Letzte Einträge" list card: last 5 TaeglicheEintraege with date + habit name + status badge
 
-**Right Column (320px):**
-- Section title "Letzte Einträge" (18px, weight 600)
-- List of recent entries (timestamp + habit name + time spent)
-- Each entry shows:
-  - Time ago ("Vor 2 Stunden")
-  - Habit name (truncated if long)
-  - Duration badge ("30 Min")
-  - Checkmark if completed
-- Subtle separator between entries
-- "Alle anzeigen" link at bottom
-
-**Below fold (full width):**
-- "Deine Gewohnheiten" section
-- Grid of habit cards (3 columns)
-- Each card shows:
-  - Habit name
-  - Description (truncated)
-  - Target time
-  - Weekly completion percentage as progress ring
-  - This week's daily dots (7 dots, filled = completed)
+**Top of right column:** "Eintrag hinzufügen" button (full width of right column, primary color)
 
 ### What Appears on Hover
-- Habit cards: Subtle lift (translateY -2px) and shadow increase
-- Chart bars/area: Tooltip with exact values
-- Recent entries: Background highlight (accent color)
-- Stats cards: No hover effect (they're informational)
+- Habit cards: subtle `shadow-md` elevation + toggle button becomes slightly larger
+- Entries in recent list: background highlight (`hover:bg-muted`)
+- KPI cards: no hover (they're informational only)
 
 ### Clickable/Interactive Areas
-- Habit cards → Open detail modal with full statistics
-- Recent entries → Navigate to that day's entries
-- Chart data points → Show detailed breakdown for that day
+- Toggle button on habit card: marks habit done for today (creates TaeglicheEintraege)
+- "Eintrag hinzufügen" button: opens dialog to log an entry with habit selector + time + date
+- "Neuer Check-in" (link in right column): opens TaeglicherCheckIn dialog
 
 ---
 
 ## 6. Components
 
-### Hero KPI
-The MOST important metric that users see first.
+### Core Interactive Component — Daily Habit Board
 
-- **Title:** Heute erledigt
-- **Data source:** TaeglicheEintraege (filtered to today's date)
-- **Calculation:** Count entries where `ausgefuehrt === true` for today / total habits count × 100
-- **Display:** Large circular progress ring with percentage inside. Ring uses primary color with 12px stroke width, rounded caps. Inside shows percentage (48px, weight 300) and label (14px, muted)
-- **Context shown:** Current date displayed below the ring
-- **Why this is the hero:** Immediate feedback on today's progress drives habit consistency. Users need to see "Am I doing well today?" at a glance.
+**What it is:** An interactive daily habit checklist where each habit appears as a card with a circular progress ring. Users can toggle habits as done directly on the dashboard.
+
+**Why this paradigm:** Habit tracking is fundamentally a daily checklist task — the natural mental model is "which items have I checked off today?" A kanban or table would be wrong here. The checklist-with-progress paradigm mirrors paper habit trackers and gives the satisfying "check off" interaction that makes habit apps engaging. The progress ring adds quantitative context (time invested vs target).
+
+**Data source(s):** `GewohnheitenVerwaltung` (habit definitions) + `TaeglicheEintraege` (today's completion records)
+
+**What users see:**
+- A card per habit from GewohnheitenVerwaltung
+- Each card shows: name, beschreibung, zielzeit_minuten as goal
+- A circular SVG ring: filled % = (investierte_zeit_minuten / zielzeit_minuten * 100), capped at 100%
+- If a TaeglicheEintraege record exists for this habit today with `ausgefuehrt: true`, the card shows as "done"
+- "Done" state: sage-green left border, green ring, checkmark icon, muted habit name
+
+**Create interaction:**
+- Click the toggle/checkbox on an undone habit → creates a TaeglicheEintraege entry with `{datum: today, gewohnheit: habitUrl, ausgefuehrt: true, investierte_zeit_minuten: habit.zielzeit_minuten}` (pre-fills with target time)
+- "Eintrag hinzufügen" button → opens dialog with all fields (habit select, date, done checkbox, time)
+
+**Edit interaction:**
+- Click on an already-done habit's ring/card → opens edit dialog (change time invested, toggle ausgefuehrt)
+
+**Delete interaction:**
+- In the edit dialog: a "Löschen" button with red destructive styling → removes the entry (habit reverts to undone)
+
+**Screen space:** Takes the entire left 60% on desktop, full width on mobile. Dominant element.
+
+**Mobile adaptation:** Same card layout, single column. Toggle button is the full right edge of the card for easy thumb reach.
+
+---
+
+### Hero KPI
+- **Title:** Heutige Fortschritt
+- **Data source:** TaeglicheEintraege (filtered to today)
+- **Calculation:** Count of today's entries with `ausgefuehrt === true` / total GewohnheitenVerwaltung count
+- **Display:** "N / M" in large 36px 800-weight text with label "Heute erledigt". E.g. "3 / 5"
+- **Context shown:** Progress bar below showing percentage filled in sage-green
+- **Why this is the hero:** This one number answers "how am I doing today?" instantly
 
 ### Secondary KPIs
 
-**Zeit heute (Time Today)**
-- Source: TaeglicheEintraege (filtered to today)
-- Calculation: Sum of `investierte_zeit_minuten` for today's entries
-- Format: Number + "Min" suffix
-- Display: Compact stat card with clock icon, number in 24px weight 600
+**Aktive Gewohnheiten**
+- Source: GewohnheitenVerwaltung
+- Calculation: total count
+- Format: integer
+- Display: Compact stat card in right column
 
-**Aktuelle Serie (Current Streak)**
+**Gesamte Check-ins**
+- Source: TaeglicherCheckIn
+- Calculation: total count of all check-in records
+- Format: integer
+- Display: Compact stat card in right column
+
+**Gesamte Einträge**
 - Source: TaeglicheEintraege
-- Calculation: Count consecutive days (going backwards from today) where at least one entry has `ausgefuehrt === true`
-- Format: Number + "Tage" suffix
-- Display: Compact stat card with flame icon, number in 24px weight 600
+- Calculation: total count
+- Format: integer
+- Display: Compact stat card in right column
 
 ### Chart
-- **Type:** Bar chart on mobile, Area chart on desktop - bars are clearer at small sizes, area shows flow better at large sizes
-- **Title:** Diese Woche / Wochenübersicht
-- **What question it answers:** "Am I being consistent this week?" - shows pattern of completion
-- **Data source:** TaeglicheEintraege (last 7 days)
-- **X-axis:** Day of week (Mo-So on mobile, full names on desktop)
-- **Y-axis:** Completion percentage (0-100%)
-- **Data calculation:** For each day, count `ausgefuehrt === true` entries / total habits × 100
-- **Mobile simplification:** Bar chart with hidden Y-axis, compact labels, 140px height
-- **Colors:** Primary color for fill, lighter primary for area gradient
+- **Type:** BarChart — shows discrete daily totals, perfect for habit tracking (how many habits done each day)
+- **Title:** "Letzte 7 Tage"
+- **What question it answers:** "Am I being consistent?" — shows daily completion counts over the past week
+- **Data source:** TaeglicheEintraege grouped by `datum`, counting `ausgefuehrt === true`
+- **X-axis:** Date label (Mo, Di, Mi... format)
+- **Y-axis:** Count of completed habits (hidden on mobile, shown on desktop)
+- **Mobile simplification:** Height reduced to 120px, no Y-axis, no tooltip on small screens
 
 ### Lists/Tables
 
-**Deine Gewohnheiten (Your Habits)**
-- Purpose: Show all tracked habits with their current status
-- Source: GewohnheitenVerwaltung (all habits) + TaeglicheEintraege (for completion status)
-- Fields shown: habit name, target time, today's completion checkbox, weekly progress
-- Mobile style: Vertical list of compact cards with progress bar
-- Desktop style: Grid of cards (3 columns) with progress ring
-- Sort: Alphabetical by habit name
-- Limit: Show all habits
-
-**Letzte Einträge (Recent Entries) - Desktop only**
-- Purpose: Quick view of recent activity for accountability
-- Source: TaeglicheEintraege (most recent)
-- Fields shown: timestamp (relative), habit name (via lookup), time spent, completion status
-- Desktop style: Simple list with subtle separators
-- Sort: By creation date, descending
-- Limit: 8 entries with "show all" link
+**Letzte Einträge**
+- Purpose: Recent activity feed — confirms entries were saved, quick review
+- Source: TaeglicheEintraege
+- Fields shown: datum, habit name (resolved from GewohnheitenVerwaltung lookup), ausgefuehrt badge, investierte_zeit_minuten
+- Mobile style: compact cards with date + habit name + green/gray dot
+- Desktop style: clean list in right column, 5 items max
+- Sort: By createdat descending
+- Limit: 5 items
 
 ### Primary Action Button (REQUIRED!)
 
-- **Label:** "+ Eintrag hinzufügen"
-- **Action:** add_record
-- **Target app:** TaeglicheEintraege (app_id: 6977780f2a7f74f1d8d9089e)
-- **What data:**
-  - datum: Today's date (auto-filled as YYYY-MM-DD)
-  - gewohnheit: Dropdown select from GewohnheitenVerwaltung records
-  - ausgefuehrt: Checkbox (default: true)
-  - investierte_zeit_minuten: Number input with common presets (15, 30, 45, 60)
-- **Mobile position:** bottom_fixed - Fixed button bar at bottom for thumb access
-- **Desktop position:** header - In the top right header area for easy access
-- **Why this action:** The core loop of habit tracking is logging completions. Making this one-tap accessible encourages consistent tracking.
+- **Label:** "Eintrag hinzufügen"
+- **Action:** Opens inline dialog to create TaeglicheEintraege record
+- **Target app:** TaeglicheEintraege
+- **What data:** datum (date picker, default today), gewohnheit (select from GewohnheitenVerwaltung), ausgefuehrt (checkbox, default true), investierte_zeit_minuten (number input)
+- **Mobile position:** FAB bottom-right (fixed, `bottom-6 right-6`)
+- **Desktop position:** Top of right column (full-width button)
+- **Why this action:** Logging a habit entry is the single most frequent daily action — it should be 1-tap accessible at all times
 
 ---
 
 ## 7. Visual Details
 
 ### Border Radius
-Rounded (8px) - Soft but not childish, matches the calm aesthetic
+Rounded — 12px for cards, 8px for buttons, 20px for pills/badges. The rounded corners reinforce the friendly, approachable tone.
 
 ### Shadows
-Subtle - Cards use `0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)` for gentle lift. Hover states increase to `0 4px 12px rgba(0,0,0,0.1)`.
+Subtle — cards: `shadow-sm` by default, `shadow-md` on hover. No harsh shadows. The lift effect on hover is the key interactive feedback.
 
 ### Spacing
-Spacious - Generous whitespace creates calm. 24px gaps between major sections, 16px between related elements, 8px between list items.
+Spacious — 24px gap between columns, 16px gap between cards, 20px card padding. The whitespace creates a calm, uncluttered feeling.
 
 ### Animations
-- **Page load:** Stagger fade-in for cards (each card delayed 50ms)
-- **Hover effects:** Subtle lift (translateY -2px) with 200ms ease transition
-- **Tap feedback:** Scale down to 0.98 on press, spring back on release
-- **Progress ring:** Animated fill on load (1s ease-out)
+- **Page load:** Stagger fade-in: header → habit cards (each card animates in with 50ms delay)
+- **Hover effects:** Shadow lift on habit cards + button scale (1.02)
+- **Tap feedback:** Brief background flash on toggle
+- **Ring fill:** CSS transition on SVG stroke-dashoffset for smooth progress ring fill
+- **Done state:** The left border color transition when a habit is marked done (0.3s ease)
 
 ---
 
 ## 8. CSS Variables (Copy Exactly!)
 
-The implementer MUST copy these values exactly into `src/index.css`:
-
 ```css
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:opsz,wght@6..12,300;6..12,400;6..12,600;6..12,700;6..12,800&display=swap');
 
 :root {
-  --radius: 0.5rem;
-  --background: hsl(45 30% 98%);
-  --foreground: hsl(220 20% 20%);
-  --card: hsl(0 0% 100%);
-  --card-foreground: hsl(220 20% 20%);
-  --popover: hsl(0 0% 100%);
-  --popover-foreground: hsl(220 20% 20%);
-  --primary: hsl(152 35% 45%);
-  --primary-foreground: hsl(0 0% 100%);
-  --secondary: hsl(45 20% 96%);
-  --secondary-foreground: hsl(220 20% 20%);
-  --muted: hsl(45 20% 96%);
-  --muted-foreground: hsl(220 10% 50%);
-  --accent: hsl(152 30% 92%);
-  --accent-foreground: hsl(220 20% 20%);
-  --destructive: hsl(0 65% 55%);
-  --border: hsl(45 20% 90%);
-  --input: hsl(45 20% 90%);
-  --ring: hsl(152 35% 45%);
-  --chart-1: hsl(152 35% 45%);
-  --chart-2: hsl(152 30% 60%);
-  --chart-3: hsl(45 40% 70%);
-  --chart-4: hsl(220 20% 60%);
-  --chart-5: hsl(0 50% 60%);
-}
+  --background: oklch(0.98 0.008 80);
+  --foreground: oklch(0.22 0.01 260);
+  --card: oklch(1.0 0.0 0);
+  --card-foreground: oklch(0.22 0.01 260);
+  --popover: oklch(1.0 0.0 0);
+  --popover-foreground: oklch(0.22 0.01 260);
+  --primary: oklch(0.55 0.10 155);
+  --primary-foreground: oklch(0.99 0.0 0);
+  --secondary: oklch(0.94 0.04 155);
+  --secondary-foreground: oklch(0.30 0.07 155);
+  --muted: oklch(0.96 0.006 80);
+  --muted-foreground: oklch(0.52 0.01 260);
+  --accent: oklch(0.94 0.04 155);
+  --accent-foreground: oklch(0.30 0.07 155);
+  --destructive: oklch(0.55 0.18 25);
+  --border: oklch(0.90 0.008 80);
+  --input: oklch(0.90 0.008 80);
+  --ring: oklch(0.55 0.10 155);
+  --radius: 0.75rem;
 
+  /* Sidebar — dark forest green */
+  --sidebar: oklch(0.20 0.025 155);
+  --sidebar-foreground: oklch(0.93 0.01 80);
+  --sidebar-border: oklch(0.27 0.025 155);
+  --sidebar-accent: oklch(0.27 0.03 155);
+  --sidebar-accent-foreground: oklch(0.93 0.01 80);
+  --sidebar-primary: oklch(0.55 0.10 155);
+  --sidebar-primary-foreground: oklch(0.99 0.0 0);
+  --sidebar-ring: oklch(0.55 0.10 155);
+
+  /* Custom tokens */
+  --gradient-primary: linear-gradient(135deg, oklch(0.55 0.10 155), oklch(0.62 0.12 155));
+  --gradient-subtle: linear-gradient(160deg, oklch(0.98 0.008 80), oklch(0.95 0.015 155));
+  --shadow-elegant: 0 4px 20px -4px oklch(0.22 0.01 260 / 0.12);
+  --shadow-card: 0 1px 4px oklch(0.22 0.01 260 / 0.08);
+  --color-success: oklch(0.62 0.12 155);
+  --color-success-bg: oklch(0.94 0.04 155);
+}
+```
+
+### Font Family Application
+In CSS after the variables:
+```css
 body {
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-family: 'Nunito Sans', sans-serif;
 }
 ```
 
@@ -344,16 +339,15 @@ body {
 
 ## 9. Implementation Checklist
 
-The implementer should verify:
-- [ ] Font loaded from Google Fonts URL above
-- [ ] All CSS variables copied exactly (replacing existing :root)
-- [ ] Mobile layout matches Section 4 - single column, hero first, fixed bottom button
-- [ ] Desktop layout matches Section 5 - three columns with specified widths
-- [ ] Hero progress ring is prominent with 12px stroke and percentage inside
-- [ ] Colors create warm, calm, encouraging mood
-- [ ] Primary action button is bottom-fixed on mobile, in header on desktop
-- [ ] Chart uses bar on mobile, area on desktop
-- [ ] Habit cards show completion checkbox and progress
-- [ ] Recent entries list appears on desktop right sidebar
-- [ ] Spacing is generous (24px section gaps)
-- [ ] Animations are subtle and smooth
+Verify during implementation:
+- [x] Font loaded from URL above (Nunito Sans)
+- [x] All CSS variables copied exactly
+- [x] Mobile layout matches Section 4
+- [x] Desktop layout matches Section 5
+- [x] Hero element (today's progress N/M) is prominent
+- [x] Colors create warm botanical mood described in Section 2
+- [x] Dashboard feels custom-designed for habit tracking (NOT generic)
+- [x] Daily habit board is interactive: toggle to mark done, edit dialog, delete
+- [x] Primary action FAB on mobile, button on desktop
+- [x] 7-day bar chart for consistency view
+- [x] Recent entries list with habit name resolved from lookup

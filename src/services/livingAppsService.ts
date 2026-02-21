@@ -1,6 +1,6 @@
 // AUTOMATICALLY GENERATED SERVICE
 import { APP_IDS } from '@/types/app';
-import type { GewohnheitenVerwaltung, TaeglicheEintraege, TaeglicherCheckIn } from '@/types/app';
+import type { GewohnheitenVerwaltung, TaeglicherCheckIn, TaeglicheEintraege } from '@/types/app';
 
 // Base Configuration
 const API_BASE_URL = 'https://my.living-apps.de/rest';
@@ -52,27 +52,6 @@ export class LivingAppsService {
     return callApi('DELETE', `/apps/${APP_IDS.GEWOHNHEITEN_VERWALTUNG}/records/${id}`);
   }
 
-  // --- TAEGLICHE_EINTRAEGE ---
-  static async getTaeglicheEintraege(): Promise<TaeglicheEintraege[]> {
-    const data = await callApi('GET', `/apps/${APP_IDS.TAEGLICHE_EINTRAEGE}/records`);
-    return Object.entries(data).map(([id, rec]: [string, any]) => ({
-      record_id: id, ...rec
-    }));
-  }
-  static async getTaeglicheEintraegeEntry(id: string): Promise<TaeglicheEintraege | undefined> {
-    const data = await callApi('GET', `/apps/${APP_IDS.TAEGLICHE_EINTRAEGE}/records/${id}`);
-    return { record_id: data.id, ...data };
-  }
-  static async createTaeglicheEintraegeEntry(fields: TaeglicheEintraege['fields']) {
-    return callApi('POST', `/apps/${APP_IDS.TAEGLICHE_EINTRAEGE}/records`, { fields });
-  }
-  static async updateTaeglicheEintraegeEntry(id: string, fields: Partial<TaeglicheEintraege['fields']>) {
-    return callApi('PATCH', `/apps/${APP_IDS.TAEGLICHE_EINTRAEGE}/records/${id}`, { fields });
-  }
-  static async deleteTaeglicheEintraegeEntry(id: string) {
-    return callApi('DELETE', `/apps/${APP_IDS.TAEGLICHE_EINTRAEGE}/records/${id}`);
-  }
-
   // --- TAEGLICHER_CHECK_IN ---
   static async getTaeglicherCheckIn(): Promise<TaeglicherCheckIn[]> {
     const data = await callApi('GET', `/apps/${APP_IDS.TAEGLICHER_CHECK_IN}/records`);
@@ -92,6 +71,27 @@ export class LivingAppsService {
   }
   static async deleteTaeglicherCheckInEntry(id: string) {
     return callApi('DELETE', `/apps/${APP_IDS.TAEGLICHER_CHECK_IN}/records/${id}`);
+  }
+
+  // --- TAEGLICHE_EINTRAEGE ---
+  static async getTaeglicheEintraege(): Promise<TaeglicheEintraege[]> {
+    const data = await callApi('GET', `/apps/${APP_IDS.TAEGLICHE_EINTRAEGE}/records`);
+    return Object.entries(data).map(([id, rec]: [string, any]) => ({
+      record_id: id, ...rec
+    }));
+  }
+  static async getTaeglicheEintraegeEntry(id: string): Promise<TaeglicheEintraege | undefined> {
+    const data = await callApi('GET', `/apps/${APP_IDS.TAEGLICHE_EINTRAEGE}/records/${id}`);
+    return { record_id: data.id, ...data };
+  }
+  static async createTaeglicheEintraegeEntry(fields: TaeglicheEintraege['fields']) {
+    return callApi('POST', `/apps/${APP_IDS.TAEGLICHE_EINTRAEGE}/records`, { fields });
+  }
+  static async updateTaeglicheEintraegeEntry(id: string, fields: Partial<TaeglicheEintraege['fields']>) {
+    return callApi('PATCH', `/apps/${APP_IDS.TAEGLICHE_EINTRAEGE}/records/${id}`, { fields });
+  }
+  static async deleteTaeglicheEintraegeEntry(id: string) {
+    return callApi('DELETE', `/apps/${APP_IDS.TAEGLICHE_EINTRAEGE}/records/${id}`);
   }
 
 }

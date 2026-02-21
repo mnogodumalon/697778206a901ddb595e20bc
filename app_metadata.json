@@ -12,7 +12,14 @@
           "type": "string",
           "subtype": "text",
           "fulltype": "string/text",
-          "description": "A string value not longer than 4000 characters (or `null`)."
+          "description": "A string value not longer than 4000 characters (or `null`/`None`).",
+          "required": null,
+          "in_list": true,
+          "in_mobile_list": true,
+          "in_text": true,
+          "in_structured_search": false,
+          "in_fulltext_search": null,
+          "in_expert_search": true
         },
         "beschreibung": {
           "identifier": "beschreibung",
@@ -20,7 +27,14 @@
           "type": "string",
           "subtype": "textarea",
           "fulltype": "string/textarea",
-          "description": "A string value that can contain multiple lines of text (or `null`)."
+          "description": "A string value that can contain multiple lines of text (or `null`/`None`).",
+          "required": null,
+          "in_list": true,
+          "in_mobile_list": true,
+          "in_text": true,
+          "in_structured_search": false,
+          "in_fulltext_search": null,
+          "in_expert_search": true
         },
         "zielzeit_minuten": {
           "identifier": "zielzeit_minuten",
@@ -28,47 +42,14 @@
           "type": "number",
           "subtype": null,
           "fulltype": "number",
-          "description": "A decimal number value (or `null`).",
-          "precision": null
-        }
-      }
-    },
-    "taegliche_eintraege": {
-      "app_id": "6977780f2a7f74f1d8d9089e",
-      "name": "T\u00e4gliche Eintr\u00e4ge",
-      "controls": {
-        "datum": {
-          "identifier": "datum",
-          "label": "Datum",
-          "type": "date",
-          "subtype": "date",
-          "fulltype": "date/date",
-          "description": "A calendar date consisting of year, month and day. (Or `null`/`None`)\n\nThe field value will be a string in the format `<YYYY>-<MM>-<DD>` or `null`.\n\nFor example: `1642-12-25`."
-        },
-        "gewohnheit": {
-          "identifier": "gewohnheit",
-          "label": "Gewohnheit",
-          "type": "applookup",
-          "subtype": "select",
-          "fulltype": "applookup/select",
-          "description": "A reference to another LivingApp record from a target lookup app (or `null`).\n\nThe field value will be a valid record URL in the form `https://<hostname>/rest/apps/<app-id>/records/<record-id>` or `null`.",
-          "lookup_app": "https://my.living-apps.de/rest/apps/6977780b11cf88a3f882fc82"
-        },
-        "ausgefuehrt": {
-          "identifier": "ausgefuehrt",
-          "label": "Gewohnheit heute ausgef\u00fchrt?",
-          "type": "bool",
-          "subtype": null,
-          "fulltype": "bool",
-          "description": "A boolean value, i.e. `true` or `false` (or `null`)."
-        },
-        "investierte_zeit_minuten": {
-          "identifier": "investierte_zeit_minuten",
-          "label": "Investierte Zeit (in Minuten)",
-          "type": "number",
-          "subtype": null,
-          "fulltype": "number",
-          "description": "A decimal number value (or `null`).",
+          "description": "A decimal number value (or `null`/`None`).",
+          "required": null,
+          "in_list": true,
+          "in_mobile_list": false,
+          "in_text": false,
+          "in_structured_search": false,
+          "in_fulltext_search": null,
+          "in_expert_search": true,
           "precision": null
         }
       }
@@ -83,7 +64,14 @@
           "type": "date",
           "subtype": "date",
           "fulltype": "date/date",
-          "description": "A calendar date consisting of year, month and day. (Or `null`/`None`)\n\nThe field value will be a string in the format `<YYYY>-<MM>-<DD>` or `null`.\n\nFor example: `1642-12-25`."
+          "description": "A calendar date consisting of year, month and day. (Or `null`/`None`)\n\nThe field value will be a string in the format `<YYYY>-<MM>-<DD>` or `null`/`None`.\n\nFor example: `1642-12-25`.",
+          "required": null,
+          "in_list": true,
+          "in_mobile_list": true,
+          "in_text": true,
+          "in_structured_search": false,
+          "in_fulltext_search": null,
+          "in_expert_search": true
         },
         "gewohnheiten": {
           "identifier": "gewohnheiten",
@@ -91,7 +79,14 @@
           "type": "applookup",
           "subtype": "select",
           "fulltype": "applookup/select",
-          "description": "A reference to another LivingApp record from a target lookup app (or `null`).\n\nThe field value will be a valid record URL in the form `https://<hostname>/rest/apps/<app-id>/records/<record-id>` or `null`.",
+          "description": "A reference to a LivingApp record from the target lookup app 'Gewohnheiten-Verwaltung' with the id `6977780b11cf88a3f882fc82` (or `null`/`None`).\n\nThe field value will be a valid record URL in the form `https://my.living-apps.de/rest/apps/6977780b11cf88a3f882fc82/<record-id>` or `null`/`None`.",
+          "required": null,
+          "in_list": true,
+          "in_mobile_list": true,
+          "in_text": true,
+          "in_structured_search": false,
+          "in_fulltext_search": null,
+          "in_expert_search": true,
           "lookup_app": "https://my.living-apps.de/rest/apps/6977780b11cf88a3f882fc82"
         },
         "zeit_investiert": {
@@ -100,7 +95,82 @@
           "type": "number",
           "subtype": null,
           "fulltype": "number",
-          "description": "A decimal number value (or `null`).",
+          "description": "A decimal number value (or `null`/`None`).",
+          "required": null,
+          "in_list": true,
+          "in_mobile_list": false,
+          "in_text": false,
+          "in_structured_search": false,
+          "in_fulltext_search": null,
+          "in_expert_search": true,
+          "precision": null
+        }
+      }
+    },
+    "taegliche_eintraege": {
+      "app_id": "6977780f2a7f74f1d8d9089e",
+      "name": "T\u00e4gliche Eintr\u00e4ge",
+      "controls": {
+        "datum": {
+          "identifier": "datum",
+          "label": "Datum",
+          "type": "date",
+          "subtype": "date",
+          "fulltype": "date/date",
+          "description": "A calendar date consisting of year, month and day. (Or `null`/`None`)\n\nThe field value will be a string in the format `<YYYY>-<MM>-<DD>` or `null`/`None`.\n\nFor example: `1642-12-25`.",
+          "required": null,
+          "in_list": true,
+          "in_mobile_list": true,
+          "in_text": true,
+          "in_structured_search": false,
+          "in_fulltext_search": null,
+          "in_expert_search": true
+        },
+        "gewohnheit": {
+          "identifier": "gewohnheit",
+          "label": "Gewohnheit",
+          "type": "applookup",
+          "subtype": "select",
+          "fulltype": "applookup/select",
+          "description": "A reference to a LivingApp record from the target lookup app 'Gewohnheiten-Verwaltung' with the id `6977780b11cf88a3f882fc82` (or `null`/`None`).\n\nThe field value will be a valid record URL in the form `https://my.living-apps.de/rest/apps/6977780b11cf88a3f882fc82/<record-id>` or `null`/`None`.",
+          "required": null,
+          "in_list": true,
+          "in_mobile_list": true,
+          "in_text": true,
+          "in_structured_search": false,
+          "in_fulltext_search": null,
+          "in_expert_search": true,
+          "lookup_app": "https://my.living-apps.de/rest/apps/6977780b11cf88a3f882fc82"
+        },
+        "ausgefuehrt": {
+          "identifier": "ausgefuehrt",
+          "label": "Gewohnheit heute ausgef\u00fchrt?",
+          "type": "bool",
+          "subtype": null,
+          "fulltype": "bool",
+          "description": "A boolean value, i.e. `true` or `false` (or `null`/`None`).",
+          "required": null,
+          "in_list": true,
+          "in_mobile_list": false,
+          "in_text": false,
+          "in_structured_search": false,
+          "in_fulltext_search": null,
+          "in_expert_search": true
+        },
+        "investierte_zeit_minuten": {
+          "identifier": "investierte_zeit_minuten",
+          "label": "Investierte Zeit (in Minuten)",
+          "type": "number",
+          "subtype": null,
+          "fulltype": "number",
+          "description": "A decimal number value (or `null`/`None`).",
+          "required": null,
+          "in_list": true,
+          "in_mobile_list": false,
+          "in_text": false,
+          "in_structured_search": false,
+          "in_fulltext_search": null,
+          "in_expert_search": true,
           "precision": null
         }
       }
@@ -109,8 +179,8 @@
   "metadata": {
     "apps_list": [
       "Gewohnheiten-Verwaltung",
-      "T\u00e4gliche Eintr\u00e4ge",
-      "T\u00e4glicher Check-in"
+      "T\u00e4glicher Check-in",
+      "T\u00e4gliche Eintr\u00e4ge"
     ]
   }
 }
