@@ -1,15 +1,21 @@
 # Scaffold Context — Generated File Contents
 
 These files are pre-generated. Do NOT Read them — their contents are below.
-Your job: Edit index.css (design tokens), Edit Layout.tsx (title), Write DashboardOverview.tsx (once), Deploy.
+EXCEPTION: DashboardOverview.tsx is NOT included here. You MUST Read it with the Read tool before Write.
+Your job: Analyze data (1-2 sentences), Edit index.css (design tokens), Edit Layout.tsx (title), Read then Write DashboardOverview.tsx (once), Deploy.
+NEVER use Bash cat/echo/heredoc for file operations — always use Read/Write/Edit tools.
 
-Generated 12 scaffold files:
+Generated 16 scaffold files:
   - src/App.tsx
   - src/components/Layout.tsx
   - src/components/PageShell.tsx
   - src/pages/DashboardOverview.tsx
   - src/components/ConfirmDialog.tsx
   - src/components/StatCard.tsx
+  - src/lib/formatters.ts
+  - src/hooks/useDashboardData.ts
+  - src/types/enriched.ts
+  - src/lib/enrich.ts
   - src/pages/GewohnheitenVerwaltungPage.tsx
   - src/components/dialogs/GewohnheitenVerwaltungDialog.tsx
   - src/pages/TaeglicherCheckInPage.tsx
@@ -291,69 +297,121 @@ export function Layout() {
 }
 ```
 
-## src/pages/DashboardOverview.tsx
+## src/hooks/useDashboardData.ts
 ```
-import { useEffect, useState } from 'react';
-import { StatCard } from '@/components/StatCard';
-import { LivingAppsService } from '@/services/livingAppsService';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import type { GewohnheitenVerwaltung, TaeglicherCheckIn, TaeglicheEintraege } from '@/types/app';
+import { LivingAppsService } from '@/services/livingAppsService';
 
-export default function DashboardOverview() {
-  const [gewohnheiten_verwaltungCount, setGewohnheitenVerwaltungCount] = useState(0);
-  const [taeglicher_check_inCount, setTaeglicherCheckInCount] = useState(0);
-  const [taegliche_eintraegeCount, setTaeglicheEintraegeCount] = useState(0);
+export function useDashboardData() {
+  const [gewohnheitenVerwaltung, setGewohnheitenVerwaltung] = useState<GewohnheitenVerwaltung[]>([]);
+  const [taeglicherCheckIn, setTaeglicherCheckIn] = useState<TaeglicherCheckIn[]>([]);
+  const [taeglicheEintraege, setTaeglicheEintraege] = useState<TaeglicheEintraege[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
-  useEffect(() => {
-    async function loadStats() {
-      try {
-        const [gewohnheiten_verwaltungData, taeglicher_check_inData, taegliche_eintraegeData] = await Promise.all([
-          LivingAppsService.getGewohnheitenVerwaltung(),
-          LivingAppsService.getTaeglicherCheckIn(),
-          LivingAppsService.getTaeglicheEintraege(),
-        ]);
-        setGewohnheitenVerwaltungCount(gewohnheiten_verwaltungData.length);
-        setTaeglicherCheckInCount(taeglicher_check_inData.length);
-        setTaeglicheEintraegeCount(taegliche_eintraegeData.length);
-      } catch (e) {
-        console.error('Failed to load stats:', e);
-      } finally {
-        setLoading(false);
-      }
+  const fetchAll = useCallback(async () => {
+    setError(null);
+    try {
+      const [gewohnheitenVerwaltungData, taeglicherCheckInData, taeglicheEintraegeData] = await Promise.all([
+        LivingAppsService.getGewohnheitenVerwaltung(),
+        LivingAppsService.getTaeglicherCheckIn(),
+        LivingAppsService.getTaeglicheEintraege(),
+      ]);
+      setGewohnheitenVerwaltung(gewohnheitenVerwaltungData);
+      setTaeglicherCheckIn(taeglicherCheckInData);
+      setTaeglicheEintraege(taeglicheEintraegeData);
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('Fehler beim Laden der Daten'));
+    } finally {
+      setLoading(false);
     }
-    loadStats();
   }, []);
 
-  return (
-    <div className="space-y-8">
-      {/* === HERO SECTION — Customize with gradient, welcome text, key metrics === */}
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Willkommen</h1>
-        <p className="text-muted-foreground mt-1">Hier ist eine Übersicht Ihrer Daten.</p>
-      </div>
+  useEffect(() => { fetchAll(); }, [fetchAll]);
 
-      {/* === KPI CARDS — Customize with icons, colors, descriptions === */}
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-        <StatCard
-          title="Gewohnheiten-Verwaltung"
-          value={loading ? '...' : gewohnheiten_verwaltungCount}
-          description="Gewohnheiten-Verwaltung im System"
-        />
-        <StatCard
-          title="Täglicher Check-in"
-          value={loading ? '...' : taeglicher_check_inCount}
-          description="Täglicher Check-in im System"
-        />
-        <StatCard
-          title="Tägliche Einträge"
-          value={loading ? '...' : taegliche_eintraegeCount}
-          description="Tägliche Einträge im System"
-        />
-      </div>
+  const gewohnheitenVerwaltungMap = useMemo(() => {
+    const m = new Map<string, GewohnheitenVerwaltung>();
+    gewohnheitenVerwaltung.forEach(r => m.set(r.record_id, r));
+    return m;
+  }, [gewohnheitenVerwaltung]);
 
-      {/* === CHARTS / CONTENT — Build your dashboard here === */}
-      {/* Ideas: recharts BarChart/LineChart, upcoming items list, recent activity feed */}
-    </div>
-  );
+  return { gewohnheitenVerwaltung, setGewohnheitenVerwaltung, taeglicherCheckIn, setTaeglicherCheckIn, taeglicheEintraege, setTaeglicheEintraege, loading, error, fetchAll, gewohnheitenVerwaltungMap };
+}
+```
+
+## src/types/enriched.ts
+```
+import type { TaeglicheEintraege, TaeglicherCheckIn } from './app';
+
+export type EnrichedTaeglicherCheckIn = TaeglicherCheckIn & {
+  gewohnheitenName: string;
+};
+
+export type EnrichedTaeglicheEintraege = TaeglicheEintraege & {
+  gewohnheitName: string;
+};
+
+```
+
+## src/lib/enrich.ts
+```
+import type { EnrichedTaeglicheEintraege, EnrichedTaeglicherCheckIn } from '@/types/enriched';
+import type { GewohnheitenVerwaltung, TaeglicheEintraege, TaeglicherCheckIn } from '@/types/app';
+import { extractRecordId } from '@/services/livingAppsService';
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function resolveDisplay(url: string | undefined, map: Map<string, any>, ...fields: string[]): string {
+  if (!url) return '';
+  const id = extractRecordId(url);
+  if (!id) return '';
+  const r = map.get(id);
+  if (!r) return '';
+  return fields.map(f => String(r.fields[f] ?? '')).join(' ').trim();
+}
+
+interface TaeglicherCheckInMaps {
+  gewohnheitenVerwaltungMap: Map<string, GewohnheitenVerwaltung>;
+}
+
+export function enrichTaeglicherCheckIn(
+  taeglicherCheckIn: TaeglicherCheckIn[],
+  maps: TaeglicherCheckInMaps
+): EnrichedTaeglicherCheckIn[] {
+  return taeglicherCheckIn.map(r => ({
+    ...r,
+    gewohnheitenName: resolveDisplay(r.fields.gewohnheiten, maps.gewohnheitenVerwaltungMap, 'gewohnheit_name'),
+  }));
+}
+
+interface TaeglicheEintraegeMaps {
+  gewohnheitenVerwaltungMap: Map<string, GewohnheitenVerwaltung>;
+}
+
+export function enrichTaeglicheEintraege(
+  taeglicheEintraege: TaeglicheEintraege[],
+  maps: TaeglicheEintraegeMaps
+): EnrichedTaeglicheEintraege[] {
+  return taeglicheEintraege.map(r => ({
+    ...r,
+    gewohnheitName: resolveDisplay(r.fields.gewohnheit, maps.gewohnheitenVerwaltungMap, 'gewohnheit_name'),
+  }));
+}
+
+```
+
+## src/lib/formatters.ts
+```
+import { format, parseISO } from 'date-fns';
+import { de } from 'date-fns/locale';
+
+export function formatDate(s: string | undefined) {
+  if (!s) return '—';
+  try { return format(parseISO(s), 'dd.MM.yyyy', { locale: de }); } catch { return s; }
+}
+
+export function formatCurrency(v: number | undefined) {
+  if (v == null) return '—';
+  return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(v);
 }
 ```

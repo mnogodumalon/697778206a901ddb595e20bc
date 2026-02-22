@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:opsz,wght@6..12,300;6..12,400;6..12,600;6..12,700;6..12,800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -44,45 +44,40 @@
 
 :root {
   --radius: 0.75rem;
-  --background: oklch(0.98 0.008 80);
-  --foreground: oklch(0.22 0.01 260);
-  --card: oklch(1.0 0.0 0);
-  --card-foreground: oklch(0.22 0.01 260);
-  --popover: oklch(1.0 0.0 0);
-  --popover-foreground: oklch(0.22 0.01 260);
-  --primary: oklch(0.55 0.10 155);
-  --primary-foreground: oklch(0.99 0.0 0);
-  --secondary: oklch(0.94 0.04 155);
-  --secondary-foreground: oklch(0.30 0.07 155);
-  --muted: oklch(0.96 0.006 80);
-  --muted-foreground: oklch(0.52 0.01 260);
-  --accent: oklch(0.94 0.04 155);
-  --accent-foreground: oklch(0.30 0.07 155);
-  --destructive: oklch(0.55 0.18 25);
-  --border: oklch(0.90 0.008 80);
-  --input: oklch(0.90 0.008 80);
-  --ring: oklch(0.55 0.10 155);
-  --chart-1: oklch(0.55 0.10 155);
-  --chart-2: oklch(0.62 0.12 155);
-  --chart-3: oklch(0.70 0.08 155);
-  --chart-4: oklch(0.80 0.06 155);
-  --chart-5: oklch(0.45 0.10 155);
-  --sidebar: oklch(0.20 0.025 155);
-  --sidebar-foreground: oklch(0.93 0.01 80);
-  --sidebar-primary: oklch(0.55 0.10 155);
-  --sidebar-primary-foreground: oklch(0.99 0.0 0);
-  --sidebar-accent: oklch(0.27 0.03 155);
-  --sidebar-accent-foreground: oklch(0.93 0.01 80);
-  --sidebar-border: oklch(0.27 0.025 155);
-  --sidebar-ring: oklch(0.55 0.10 155);
-
-  /* Custom tokens */
-  --gradient-primary: linear-gradient(135deg, oklch(0.55 0.10 155), oklch(0.62 0.12 155));
-  --gradient-subtle: linear-gradient(160deg, oklch(0.98 0.008 80), oklch(0.95 0.015 155));
-  --shadow-elegant: 0 4px 20px -4px oklch(0.22 0.01 260 / 0.12);
-  --shadow-card: 0 1px 4px oklch(0.22 0.01 260 / 0.08);
-  --color-success: oklch(0.62 0.12 155);
-  --color-success-bg: oklch(0.94 0.04 155);
+  --background: oklch(0.978 0.008 95);
+  --foreground: oklch(0.2 0.02 250);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.2 0.02 250);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.2 0.02 250);
+  --primary: oklch(0.56 0.18 148);
+  --primary-foreground: oklch(0.98 0 0);
+  --secondary: oklch(0.94 0.01 150);
+  --secondary-foreground: oklch(0.3 0.05 148);
+  --muted: oklch(0.95 0.005 95);
+  --muted-foreground: oklch(0.52 0.01 250);
+  --accent: oklch(0.94 0.03 148);
+  --accent-foreground: oklch(0.3 0.08 148);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.91 0.01 95);
+  --input: oklch(0.91 0.01 95);
+  --ring: oklch(0.56 0.18 148);
+  --chart-1: oklch(0.56 0.18 148);
+  --chart-2: oklch(0.62 0.15 185);
+  --chart-3: oklch(0.72 0.14 75);
+  --chart-4: oklch(0.65 0.16 265);
+  --chart-5: oklch(0.58 0.19 30);
+  --sidebar: oklch(0.24 0.03 248);
+  --sidebar-foreground: oklch(0.95 0.01 95);
+  --sidebar-primary: oklch(0.56 0.18 148);
+  --sidebar-primary-foreground: oklch(0.98 0 0);
+  --sidebar-accent: oklch(0.3 0.03 248);
+  --sidebar-accent-foreground: oklch(0.95 0.01 95);
+  --sidebar-border: oklch(0.32 0.03 248);
+  --sidebar-ring: oklch(0.56 0.18 148);
+  --font-sans: 'Outfit', sans-serif;
+  --gradient-success: linear-gradient(135deg, oklch(0.56 0.18 148), oklch(0.62 0.15 185));
+  --shadow-card: 0 2px 12px -4px oklch(0.2 0.02 250 / 0.1);
 }
 
 .dark {
@@ -125,6 +120,5 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-family: 'Nunito Sans', sans-serif;
   }
 }

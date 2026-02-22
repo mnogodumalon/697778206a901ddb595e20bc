@@ -106,25 +106,26 @@ async def main():
             "type": "preset",
             "preset": "claude_code",
             "append": (
-                "MANDATORY FILE RULES (highest priority):\n"
-                "- DashboardOverview.tsx: Write ONCE, then only Edit. Never read back after writing.\n"
+                "MANDATORY RULES (highest priority):\n"
+                "- No design_brief.md — analyze data in 1-2 sentences, then implement directly\n"
+                "- DashboardOverview.tsx: Call Read('src/pages/DashboardOverview.tsx') FIRST, then Write ONCE with complete content. Never read back after writing.\n"
+                "- NEVER use Bash for file operations (no cat, echo, heredoc, >, >>). ALWAYS use Read/Write/Edit tools. If a tool fails, retry with the SAME tool — never fall back to Bash.\n"
                 "- index.css: NEVER Write, only Edit (pre-generated with correct import order)\n"
-                "- Layout.tsx: NEVER Write, only Edit (pre-generated, only change APP_TITLE/APP_SUBTITLE)\n"
-                "- CRUD pages ({Entity}Page.tsx): NEVER touch — complete with all logic\n"
-                "- CRUD dialogs ({Entity}Dialog.tsx): NEVER touch — complete with all logic\n"
-                "- App.tsx: NEVER touch — routes are pre-configured\n"
-                "- PageShell.tsx, StatCard.tsx, ConfirmDialog.tsx: NEVER touch\n"
-                "- You MAY create new files in src/components/ for custom interactive components\n"
+                "- Layout.tsx: NEVER Write, only Edit (only change APP_TITLE/APP_SUBTITLE)\n"
+                "- CRUD pages/dialogs: NEVER touch — complete with all logic\n"
+                "- App.tsx, PageShell.tsx, StatCard.tsx, ConfirmDialog.tsx: NEVER touch\n"
                 "- No Read-back after Write/Edit\n"
                 "- No Read of files whose contents are in .scaffold_context\n"
                 "- Read .scaffold_context FIRST to understand all generated files\n"
-                "- The dashboard is the PRIMARY WORKSPACE, not just an info page — build interactive domain-specific UI"
+                "- useDashboardData.ts, enriched.ts, enrich.ts, formatters.ts: NEVER touch — use as-is\n"
+                "- Dashboard is the PRIMARY WORKSPACE — build interactive domain-specific UI, not an info page\n"
+                "- NEVER use TodoWrite — no task lists, no planning, just implement directly"
             ),
         },
         setting_sources=["project"],  # Required: loads CLAUDE.md and .claude/skills/
         mcp_servers={"deploy_tools": deployment_server},
         permission_mode="acceptEdits",
-        allowed_tools=["Bash", "Write", "Read", "Edit", "Glob", "Grep", "Task", "TodoWrite",
+        allowed_tools=["Bash", "Write", "Read", "Edit", "Glob", "Grep", "Task",
         "mcp__deploy_tools__deploy_to_github"
         ],
         cwd="/home/user/app",
@@ -182,8 +183,9 @@ Starte JETZT mit Schritt 1!"""
     else:
         # Normal-Mode: Neues Dashboard bauen
         query = (
-            "Use frontend-design Skill to create analyse app structure and generate design_brief.md"
-            "Build the Dashboard.tsx following design_brief.md exactly. "
+            "Read .scaffold_context and app_metadata.json. "
+            "Analyze data, decide UI paradigm in 1-2 sentences, then implement directly. "
+            "Follow .claude/skills/frontend-impl/SKILL.md. "
             "Use existing types and services from src/types/ and src/services/. "
             "Deploy when done using the deploy_to_github tool."
         )

@@ -2,8 +2,7 @@
 name: frontend-impl
 description: |
   Activate this skill when:
-  - Implementing Dashboard.tsx
-  - Following design_brief.md
+  - Building DashboardOverview.tsx
   - Writing React/TypeScript code
   - Integrating with Living Apps API
 allowed-tools:
@@ -17,90 +16,70 @@ allowed-tools:
 
 # Frontend Implementation Skill
 
-Your ONLY job is to **implement exactly what design_brief.md describes**.
-
-## ⚠️ What Is Pre-Generated (DO NOT touch!)
-
-CRUD sub-pages, dialogs, routing, sidebar navigation, and shared components are **already pre-generated** and complete. They use semantic design tokens — changing CSS variables in `index.css` automatically updates their appearance.
-
-**You ONLY implement:**
-1. **DashboardOverview.tsx** — the app's **primary workspace** with interactive, domain-specific UI (Write ONCE, then only Edit)
-2. **index.css** — design tokens via Edit (NEVER Write — pre-generated with correct import order)
-3. **Layout.tsx** — only APP_TITLE and APP_SUBTITLE via Edit
-4. **Custom components** — if the design brief specifies interactive components (e.g., a custom calendar, kanban board, etc.), create them as separate files in `src/components/` and import them into DashboardOverview.tsx
-
-**DO NOT touch:** CRUD pages, dialogs, App.tsx, PageShell.tsx, StatCard.tsx, ConfirmDialog.tsx.
+Build a **production-ready, domain-specific dashboard** as the app's primary workspace.
 
 ---
 
-## ⚠️ Follow design_brief.md EXACTLY
+## Step 1: Analyze and Decide (MANDATORY — before any code)
 
-All design decisions are ALREADY MADE. Follow them word for word.
+Read `.scaffold_context` and `app_metadata.json`. Then write 1-2 sentences describing:
 
-**FORBIDDEN Actions:**
-- Choosing a different font than the brief specifies
-- Changing colors from the brief
-- Rearranging the layout differently than described
-- Adding components not mentioned in the brief
-- Using "sensible defaults" instead of what the brief says
-- Using Inter, Roboto, or system fonts (unless brief says so)
-- Interpreting the brief "creatively" — implement literally
+1. **What is the best UI paradigm for the user's core workflow?**
+2. **Why is this the most natural way to interact with THIS data?**
+
+Use this table to guide your choice:
+
+| Data Nature | Best UI Paradigm |
+|-------------|-----------------|
+| Time-based / scheduled entries | Calendar, week planner, timeline |
+| Status-based / workflow stages | Kanban board, progress pipeline |
+| Quantitative / goal-tracking | Progress rings, gauges, trend charts |
+| Hierarchical / categorized | Grouped sections, nested views |
+| Sequential / step-by-step | Stepper, checklist, flow view |
+| Relational / many linked items | Master-detail, linked cards |
+
+Then implement immediately. No design_brief.md, no task lists, no planning documents.
 
 ---
 
-## Process
+## Step 2: Edit index.css (design tokens)
 
-### Step 1: Read design_brief.md and .scaffold_context
+**Use Edit, NOT Write** — `index.css` is pre-generated with correct import order.
 
-Read BOTH completely. Pay attention to:
-
-- **design_brief.md Section 3** → Font name, URL, color values (oklch!)
-- **design_brief.md Section 4** → Mobile layout
-- **design_brief.md Section 5** → Desktop layout
-- **design_brief.md Section 6** → Components (Hero, KPIs, charts)
-- **design_brief.md Section 8** → CSS variables (copy exactly)
-- **.scaffold_context** → Generated types, service, and component structure
-
-### Step 2: Apply CSS Variables via Edit (CRITICAL!)
-
-**Use Edit, NOT Write** on `index.css` — it's pre-generated with correct import order.
-
-Copy oklch() variables from design_brief.md Section 8:
+Choose a font and color palette that fits the app's domain, then add your tokens:
 
 ```css
+@import url('https://fonts.googleapis.com/css2?family=...');  /* URL imports FIRST */
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* EXTEND :root — do NOT rewrite */
 :root {
   --background: oklch(...);
   --foreground: oklch(...);
   --card: oklch(...);
   --primary: oklch(...);
-  /* ... all variables from Section 8 */
-
-  /* Custom tokens */
+  /* ... */
   --gradient-primary: linear-gradient(135deg, oklch(...), oklch(...));
   --shadow-elegant: 0 10px 30px -10px oklch(... / 0.3);
 }
 ```
 
-**⚠️ CSS Import Order MUST stay intact:**
-```css
-@import url('https://fonts.googleapis.com/css2?family=...');  /* URL imports FIRST */
-@import "tailwindcss";
-@import "tw-animate-css";
-```
+**CSS Import Order MUST stay intact:** `@import url(...)` FIRST, then `@import "tailwindcss"`, then `@import "tw-animate-css"`.
 
-#### Why This Matters
+## Step 3: Edit Layout.tsx (title only)
 
-shadcn/ui components use Tailwind CSS variables. Changing them in `index.css` automatically themes ALL components including the pre-generated CRUD pages and sidebar.
+Use Edit to change `APP_TITLE` and `APP_SUBTITLE`. Nothing else.
 
-### Step 3: Edit Layout.tsx (title only)
+## Step 4: Build DashboardOverview.tsx
 
-Use Edit to change `APP_TITLE` and `APP_SUBTITLE` in Layout.tsx. Nothing else.
+**Mandatory sequence:**
+1. **Read** `src/pages/DashboardOverview.tsx` using the Read tool
+2. **Write** `src/pages/DashboardOverview.tsx` ONCE with the complete content
 
-### Step 4: Write DashboardOverview.tsx
+**NEVER use Bash (cat/echo/heredoc) for file operations.** If Read or Write fails, retry with the same tool.
 
-Plan the ENTIRE component first, then Write it ONCE. Follow design_brief.md Sections 4-7 exactly.
-
-### Step 5: Build and Deploy
+## Step 5: Deploy
 
 ```bash
 npm run build
@@ -110,967 +89,215 @@ Then call `mcp__deploy_tools__deploy_to_github`
 
 ---
 
+## What Is Pre-Generated (DO NOT touch!)
+
+CRUD sub-pages, dialogs, routing, sidebar, and shared components are pre-generated. Changing CSS variables in `index.css` automatically updates their appearance.
+
+**DO NOT touch:** CRUD pages, dialogs, App.tsx, PageShell.tsx, StatCard.tsx, ConfirmDialog.tsx, useDashboardData.ts, enriched.ts, enrich.ts, formatters.ts.
+
+**Already available in DashboardOverview.tsx:**
+- `useDashboardData()` — all entities loaded, lookup maps built, loading/error handled
+- `enrichX()` — applookup fields resolved to display name strings
+- `formatDate()`, `formatCurrency()` — locale-aware formatting
+- Loading skeleton and error state with retry
+
+---
+
+## Dashboard = Primary Workspace, NOT Info Page
+
+**The #1 mistake is building the dashboard as a passive info screen** (KPI cards + chart + recent activity). Users want to WORK with their data, not just look at it.
+
+### The Core Interactive Component
+
+Every dashboard needs ONE interactive component — the **reason users open the app**. This component:
+
+- Takes up significant screen space (hero, not sidebar widget)
+- Supports create, edit, delete directly (click empty slot → create dialog, click entry → edit)
+- Shows data in its most natural form (the paradigm you chose in Step 1)
+- Provides immediate visual feedback
+
+The pre-generated CRUD list pages are a fallback. Users should do 90% of their work without leaving the dashboard.
+
+### Anti-Slop Checklist (if ANY true, redesign!)
+
+- Dashboard is a passive info page — only KPI cards and charts
+- No domain-specific UI — uses generic list/table for core data
+- All KPI cards look identical
+- Layout is a boring 2x2 or 3x3 grid
+- No clear hero element
+- Colors are generic blue/green/red
+- Dashboard could be for ANY app
+- Font is Inter, Roboto, Open Sans, Lato, Arial, Helvetica, or system-ui
+
+---
+
+## Design Principles (apply inline, no separate document)
+
+### Theme: Light, Minimal, BUT Distinctive
+
+Always light mode. Minimal does NOT mean generic.
+
+**Color:** Start with warm or cool off-white base (not pure white). Add ONE refined accent color that fits the app's domain — not generic blue (#007bff).
+
+**Typography:** FORBIDDEN: Inter, Roboto, Open Sans, Lato, Arial, Helvetica, system-ui.
+
+| App Character | Recommended Fonts |
+|--------------|-------------------|
+| Data/Analytics | Space Grotesk, IBM Plex Sans, Geist |
+| Fitness/Health | Outfit, Nunito Sans, DM Sans |
+| Finance | Source Serif 4, Newsreader, IBM Plex Serif |
+| Creative | Syne, Bricolage Grotesque, Cabinet Grotesk |
+| Professional | Source Sans 3, Plus Jakarta Sans, Manrope |
+
+Typography hierarchy through extreme weight differences (300 vs 700) and size jumps (24px vs 14px).
+
+**Colors must be oklch() functions:**
+```css
+--primary: oklch(0.52 0.22 264);   /* ✅ */
+--primary: 0.52 0.22 264;          /* ❌ breaks! */
+```
+
+### Layout: Visual Interest Required
+
+Every layout needs variation — size, weight, spacing, format, typography. If everything is the same size in identical cards, it's AI slop.
+
+**Mobile:** Vertical flow, thumb-friendly, hero dominates first viewport.
+**Desktop:** Use horizontal space, multi-column where appropriate, hover reveals.
+
+---
+
 ## Critical Implementation Rules
 
-### 1. Type Imports
+### Type Imports
 ```typescript
 // ❌ WRONG
 import { Workout } from '@/types/app';
-
 // ✅ CORRECT
 import type { Workout } from '@/types/app';
 ```
 
-### 2. extractRecordId Always Has Null Check
+### extractRecordId Null Check
 ```typescript
 const id = extractRecordId(record.fields.relation);
-if (!id) return;  // ✅ Always check!
+if (!id) return;
 ```
 
-### 3. Dates Without Seconds
+### Dates Without Seconds
 ```typescript
-// For API: YYYY-MM-DDTHH:MM (no seconds!)
-const dateForAPI = formData.date + 'T12:00';
+const dateForAPI = formData.date + 'T12:00'; // YYYY-MM-DDTHH:MM only
 ```
 
-### 4. Select Never Has Empty Value
+### Select Never Empty Value
 ```typescript
-// ❌ WRONG
-<SelectItem value="">None</SelectItem>
-
-// ✅ CORRECT
-<SelectItem value="none">None</SelectItem>
+// ❌ <SelectItem value="">None</SelectItem>
+// ✅ <SelectItem value="none">None</SelectItem>
 ```
 
 ---
 
-## Implementation Checklist
+## Completeness Checklist
 
-Before completing, verify EACH item against design_brief.md:
+### Theme
+- [ ] Font loaded via @import url() in index.css (FIRST, before tailwindcss!)
+- [ ] Font is NOT from forbidden list
+- [ ] All CSS variables are oklch() functions
+- [ ] Color palette fits the app's domain
 
-### Theme Verification (CRITICAL!)
-- [ ] Font loaded via @import url() in index.css (FIRST import, before tailwindcss!)
-- [ ] Font-family in CSS matches EXACTLY design_brief.md Section 3
-- [ ] ALL CSS variables in index.css copied EXACTLY from design_brief.md Section 8
-- [ ] Colors are complete oklch() functions (not raw values, not hsl!)
-
-### Layout Verification
-- [ ] Mobile layout matches EXACTLY design_brief.md Section 4
-- [ ] Desktop layout matches EXACTLY design_brief.md Section 5
-- [ ] Hero element stands out as described
-- [ ] Section order matches the brief
-
-### Components Verification
-- [ ] Hero KPI matches EXACTLY design_brief.md Section 6 "Hero KPI"
-- [ ] Secondary KPIs match EXACTLY design_brief.md Section 6
-- [ ] Chart matches EXACTLY design_brief.md Section 6 "Chart"
-- [ ] Primary action matches EXACTLY design_brief.md Section 6
-
-### Visual Details Verification
-- [ ] Border radius matches design_brief.md Section 7
-- [ ] Shadow style matches design_brief.md Section 7
-- [ ] Animations match design_brief.md Section 7
+### Core Component
+- [ ] Interactive component implements the chosen UI paradigm
+- [ ] Users can create, edit, delete directly from the dashboard
+- [ ] Component takes significant screen space (hero element)
 
 ### Technical
 - [ ] `npm run build` passes
-- [ ] No console errors
-
-### ⚠️ COMPLETENESS VERIFICATION
-
-- [ ] **Core Interactive Component works** — the domain-specific UI from design_brief.md Section 6 is fully functional
-- [ ] **Create/Edit/Delete from dashboard** — users can perform CRUD directly in the interactive component (not just view data)
-- [ ] **DashboardOverview matches design_brief.md** — layout, hero, KPIs, charts all as described
-- [ ] **Data displays correctly** — all KPIs calculated, lists populated
-- [ ] **All states handled:** loading (Skeleton), empty, error with retry
-- [ ] **No hardcoded demo data** — all data from Living Apps API
-- [ ] **Responsive** — mobile and desktop layouts as described in Sections 4 and 5
+- [ ] Empty state handled (loading/error are pre-generated)
+- [ ] No hardcoded demo data
+- [ ] Responsive: mobile and desktop layouts
 
 ---
 
-## Drill-Down: When and How to Use It
+## Living Apps API Reference
 
-Drill-down is useful when there's **more information to show** than fits in the summary view. Don't add it everywhere - only where it adds value.
-
-### When to Use Drill-Down
-
-| Good Use Cases | Skip Drill-Down When... |
-|----------------|------------------------|
-| List item → show full record details | The summary already shows everything |
-| Summary count → show the items being counted | It's a simple, self-explanatory number |
-| Record reference → view the related record | There's no additional detail to show |
-
-### Make It Obvious
-
-If something is clickable, make it visually clear:
-- Hover effect (shadow, background change)
-- Cursor pointer
-- Underline or chevron icon for "see more"
-
-### Implementation Pattern: Clickable List Item
-
-```typescript
-// Use when list items have more details to show
-<div
-  className="p-3 rounded-lg hover:bg-muted cursor-pointer transition-colors"
-  onClick={() => setSelectedRecord(record)}
->
-  <div className="font-medium">{record.name}</div>
-  <div className="text-sm text-muted-foreground">{record.summary}</div>
-</div>
-```
-
-**Don't force drill-down everywhere.** A simple KPI that shows "5 workouts this week" doesn't need a click handler if there's nothing more to show.
-
----
-
-## UX Details - Don't Forget!
-
-### Loading States
-```typescript
-if (loading) {
-  return <LoadingState />;  // Use Skeleton, not spinner
-}
-```
-
-### Empty States
-```typescript
-if (data.length === 0) {
-  return (
-    <EmptyState 
-      title="No data yet"
-      description="Get started by adding your first item"
-      action={<Button>Add First Item</Button>}
-    />
-  );
-}
-```
-
-### Error States
-```typescript
-if (error) {
-  return (
-    <Alert variant="destructive">
-      <AlertCircle className="h-4 w-4" />
-      <AlertTitle>Error</AlertTitle>
-      <AlertDescription>
-        {error.message}
-        <Button variant="outline" onClick={retry}>Try Again</Button>
-      </AlertDescription>
-    </Alert>
-  );
-}
-```
-
-### Success Feedback
-```typescript
-// Use toast for success messages
-import { toast } from '@/components/ui/use-toast';
-
-toast({
-  title: "Success!",
-  description: "Item saved successfully.",
-});
-```
-
-### Hover States
-```typescript
-// Cards should have hover feedback
-<Card className="hover:shadow-md transition-shadow cursor-pointer">
-```
-
----
-
-# Living Apps API Reference
-
-## ⚠️ Critical API Rules
-
-These rules are **non-negotiable**. Breaking them causes runtime errors.
-
----
-
-## 1. Date Formats
-
-Living Apps has strict date format requirements:
+### Date Formats (STRICT!)
 
 | Field Type | Format | Example |
 |------------|--------|---------|
-| `date/datetimeminute` | `YYYY-MM-DDTHH:MM` | `2025-11-06T12:00` |
 | `date/date` | `YYYY-MM-DD` | `2025-11-06` |
+| `date/datetimeminute` | `YYYY-MM-DDTHH:MM` | `2025-11-06T12:00` |
 
-### ❌ WRONG
+NO seconds for `datetimeminute`!
+
+### applookup Fields
+
+Store full URLs: `https://my.living-apps.de/rest/apps/{app_id}/records/{record_id}`
+
 ```typescript
-// Seconds are NOT allowed for datetimeminute!
-const date = '2025-11-06T12:00:00';  // ❌ Will fail
+import { extractRecordId, createRecordUrl } from '@/services/livingAppsService';
+import { APP_IDS } from '@/types/app';
+
+const recordId = extractRecordId(record.fields.category);
+if (!recordId) return;
+
+const data = { category: createRecordUrl(APP_IDS.CATEGORIES, selectedId) };
 ```
 
-### ✅ CORRECT
-```typescript
-// For date/datetimeminute fields
-const dateForAPI = formData.datum + 'T12:00';  // ✅ YYYY-MM-DDTHH:MM
+### API Response Format
 
-// For date/date fields
-const dateForAPI = formData.datum;  // ✅ YYYY-MM-DD
-
-// Display in <input type="date">
-const dateForInput = apiData.datum?.split('T')[0];  // Extract YYYY-MM-DD
-```
+Returns **object**, NOT array. Use `Object.entries()` to extract `record_id`.
 
 ---
 
-## 2. applookup Fields
+## Data Access (pre-generated — do NOT rewrite)
 
-`applookup/select` fields store **full URLs** to related records.
-
-### URL Format
-```
-https://my.living-apps.de/rest/apps/{app_id}/records/{record_id}
-```
-
-### ⚠️ CRITICAL: Always use extractRecordId()
+All data fetching, lookup maps, and enrichment are pre-generated. In DashboardOverview.tsx:
 
 ```typescript
-// ❌ NEVER do this manually
-const parts = url.split('/');
-const id = parts[parts.length - 1];  // ❌ Fragile!
-
-// ✅ ALWAYS use the helper function
-import { extractRecordId } from '@/services/livingAppsService';
-
-const recordId = extractRecordId(url);
-if (!recordId) return;  // ✅ Always null-check!
+// Already in the skeleton — just use the data:
+const { kurse, anmeldungen, dozentenMap, loading, error, fetchAll } = useDashboardData();
+const enrichedKurse = enrichKurse(kurse, dozentenMap, raeumeMap);
 ```
 
-### extractRecordId() Implementation
-```typescript
-export function extractRecordId(url: string | null | undefined): string | null {
-  if (!url) return null;
-  // Extracts last 24 hex characters (Living Apps Record IDs)
-  const match = url.match(/([a-f0-9]{24})$/i);
-  return match ? match[1] : null;
-}
-```
+For CRUD after user actions:
 
-### Creating applookup Values
 ```typescript
-import { createRecordUrl, APP_IDS } from '@/services/livingAppsService';
-
-// When creating/updating records with applookup fields
-const data = {
-  kategorie: createRecordUrl(APP_IDS.KATEGORIEN, selectedKategorieId),
+const handleCreate = async (fields) => {
+  await LivingAppsService.createKurseEntry(fields);
+  fetchAll();
 };
 
-// createRecordUrl returns:
-// 'https://my.living-apps.de/rest/apps/{app_id}/records/{record_id}'
-```
-
-### applookup Can Be Null!
-```typescript
-// ❌ WRONG - Will crash if field is null
-workoutLogs.forEach((log) => {
-  const id = extractRecordId(log.fields.uebung);
-  data[id] = log;  // ❌ Crashes if id is null
-});
-
-// ✅ CORRECT - Defensive programming
-workoutLogs.forEach((log) => {
-  const id = extractRecordId(log.fields.uebung);
-  if (!id) return;  // ✅ Skip if null
-  if (!data[id]) data[id] = [];
-  data[id].push(log);
-});
-```
-
----
-
-## 3. API Response Format
-
-Living Apps returns **objects**, not arrays!
-
-### Response Structure
-```typescript
-// API returns:
-{
-  "690abc123...": {
-    "createdat": "2025-11-06T10:00:00",
-    "updatedat": null,
-    "fields": {
-      "name": "Item 1",
-      "value": 100
-    }
-  },
-  "690def456...": {
-    "createdat": "2025-11-06T11:00:00",
-    "updatedat": null,
-    "fields": {
-      "name": "Item 2",
-      "value": 200
-    }
-  }
-}
-```
-
-### ❌ WRONG Transformation
-```typescript
-// Loses record_id!
-const items = Object.values(response);  // ❌ No record_id!
-```
-
-### ✅ CORRECT Transformation
-```typescript
-// Use Object.entries() to preserve record_id
-const items = Object.entries(response).map(([record_id, record]) => ({
-  record_id,  // ← From the key
-  createdat: record.createdat,
-  updatedat: record.updatedat,
-  ...record.fields,
-}));
-```
-
-### Why record_id Matters
-- Required for React `key` prop
-- Required for update/delete operations
-- Required for applookup references
-
----
-
-## 4. API Authentication
-
-```typescript
-const headers = {
-  'X-API-Key': API_KEY,  // From environment
-  'Content-Type': 'application/json',
-  'Accept': 'application/json',
+const handleDelete = async (id: string) => {
+  await LivingAppsService.deleteKurseEntry(id);
+  fetchAll();
 };
 ```
 
-### Proxy vs Direct URL
-```typescript
-// For API calls (via proxy)
-const API_BASE = '/api/rest';
-
-// For applookup values (direct)
-const APPLOOKUP_BASE = 'https://my.living-apps.de/rest';
-```
-
----
-
-## 5. CRUD Operations
-
-### GET All Records
-```typescript
-GET /api/rest/apps/{app_id}/records
-```
-
-### GET Single Record
-```typescript
-GET /api/rest/apps/{app_id}/records/{record_id}
-```
-
-### CREATE Record
-```typescript
-POST /api/rest/apps/{app_id}/records
-Content-Type: application/json
-
-{
-  "name": "New Item",
-  "value": 100
-}
-```
-
-### UPDATE Record
-```typescript
-PATCH /api/rest/apps/{app_id}/records/{record_id}
-Content-Type: application/json
-
-{
-  "value": 150  // Only changed fields
-}
-```
-
-### DELETE Record
-```typescript
-DELETE /api/rest/apps/{app_id}/records/{record_id}
-
-// Note: DELETE also returns JSON, always call response.json()
-```
-
----
-
-## 6. Error Handling
+## Chart Pattern (recharts)
 
 ```typescript
-async function callAPI(method: string, endpoint: string, data?: any) {
-  const response = await fetch(`${API_BASE}${endpoint}`, {
-    method,
-    headers: {
-      'X-API-Key': API_KEY,
-      'Content-Type': 'application/json',
-    },
-    body: data ? JSON.stringify(data) : undefined,
-  });
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`API Error (${response.status}): ${errorText}`);
-  }
-
-  return response.json();  // Always parse JSON, even for DELETE
-}
+<ResponsiveContainer width="100%" height={300}>
+  <LineChart data={data}>
+    <XAxis dataKey="name" stroke="var(--muted-foreground)" />
+    <YAxis stroke="var(--muted-foreground)" />
+    <Tooltip contentStyle={{ backgroundColor: 'var(--background)', border: '1px solid var(--border)' }} />
+    <Line type="monotone" dataKey="value" stroke="var(--primary)" strokeWidth={2} dot={false} />
+  </LineChart>
+</ResponsiveContainer>
 ```
-
----
-
-## 7. Metadata Structure
-
-`app_metadata.json` contains the **complete, real metadata from Living Apps REST API**.
-
-**IMPORTANT:**
-- `controls` is an **OBJECT** (not array!)
-- Each control has `identifier`, `label`, `type`, `subtype`, `fulltype`
-- `lookup/select` has `lookup_data` with all options
-- `applookup/select` has `lookup_app` URL to the linked app
-
-```typescript
-{
-  "appgroup_id": "...",
-  "appgroup_name": "My App Group",
-  "apps": {
-    "app_identifier": {
-      "app_id": "...",
-      "name": "App Display Name",
-      "controls": {
-        "control_identifier": {
-          "identifier": "field_name",      // Use this as field key
-          "label": "Field Label",          // Use this for UI display
-          "type": "string",                // Base type
-          "subtype": null,                 // or "select", "textarea", etc.
-          "fulltype": "string/text",       // Combined: type/subtype
-          "lookup_data": [                 // For lookup/select fields
-            { "key": "option1", "value": "Option 1" },
-            { "key": "option2", "value": "Option 2" }
-          ],
-          "lookup_app": "https://my.living-apps.de/rest/apps/{app_id}"  // For applookup
-        }
-      }
-    }
-  }
-}
-```
-
-### Common Field Types
-| fulltype | TypeScript | Notes |
-|----------|------------|-------|
-| `string/text` | `string` | Plain text |
-| `string/textarea` | `string` | Multiline text |
-| `number/number` | `number` | Numeric |
-| `bool/bool` | `boolean` | True/false |
-| `date/date` | `string` | YYYY-MM-DD |
-| `date/datetimeminute` | `string` | YYYY-MM-DDTHH:MM (NO seconds!) |
-| `lookup/select` | `string` | From predefined list (lookup_data) |
-| `applookup/select` | `string \| null` | URL to another app's record |
-
-### Using Metadata for UI
-```typescript
-// Use field labels for UI
-const fieldLabel = metadata.apps.myapp.controls.myfield.label;
-
-// Use lookup_data for Select options
-const options = metadata.apps.myapp.controls.status.lookup_data;
-// → [{ key: "active", value: "Active" }, { key: "done", value: "Done" }]
-```
-
----
-
-# Code Patterns Reference
 
 ## Available Libraries
 
-### shadcn/ui Components
+- **shadcn/ui** — all components in `src/components/ui/`
+- **recharts** — LineChart, BarChart, PieChart, AreaChart
+- **lucide-react** — icons
+- **date-fns** — date formatting with `de` locale
 
-All shadcn components are pre-installed in `/src/components/ui/`
-
-```typescript
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-// etc.
-```
-
-**To find specific components or examples, use shadcn MCP Tools:**
-```
-mcp_shadcn_search_items_in_registries(registries: ['@shadcn'], query: 'chart')
-mcp_shadcn_view_items_in_registries(items: ['@shadcn/card'])
-mcp_shadcn_get_item_examples_from_registries(registries: ['@shadcn'], query: 'card-demo')
-```
-
-### recharts (Charts)
-
-Pre-installed! Use for visualizations:
-```typescript
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import { BarChart, Bar } from 'recharts';
-import { PieChart, Pie, Cell } from 'recharts';
-import { AreaChart, Area } from 'recharts';
-```
-
-| Chart Type | Use Case |
-|------------|----------|
-| `LineChart` | Time series, trends |
-| `BarChart` | Comparisons, categories |
-| `PieChart` | Distributions, percentages |
-| `AreaChart` | Cumulative trends |
-
-See: https://recharts.org/
-
-### lucide-react (Icons)
-
-Pre-installed! Use appropriate icons:
-```typescript
-import { 
-  TrendingUp, TrendingDown,  // Trends
-  AlertCircle, CheckCircle,   // Status
-  PlusCircle, MinusCircle,    // Actions
-  Calendar, Clock,            // Time
-  User, Users,                // People
-  DollarSign, Euro,           // Money
-  Activity, Heart,            // Health/Fitness
-  Package, ShoppingCart,      // Inventory
-} from 'lucide-react';
-```
-
-See: https://lucide.dev/
-
-### date-fns (Date Formatting)
-
-Pre-installed! Use for date formatting:
-```typescript
-import { format, parseISO, formatDistance } from 'date-fns';
-import { de } from 'date-fns/locale';
-
-// Format for display
-format(parseISO(record.createdat), 'dd.MM.yyyy', { locale: de });
-// → "06.11.2025"
-
-format(parseISO(record.createdat), 'PPP', { locale: de });
-// → "6. November 2025"
-
-// Relative time
-formatDistance(parseISO(record.createdat), new Date(), { 
-  addSuffix: true, 
-  locale: de 
-});
-// → "vor 3 Tagen"
-
-// For input type="date"
-const inputValue = record.datum?.split('T')[0] || '';
-// → "2025-11-06"
-```
-
----
-
-## TypeScript Patterns
-
-### ⚠️ CRITICAL: Type-Only Imports
-
-TypeScript's `verbatimModuleSyntax` requires explicit type imports:
+## Formatting (pre-generated — just import)
 
 ```typescript
-// ❌ WRONG - TypeScript error
-import { Workout, Ernaehrung } from '@/types/app';
+import { formatDate, formatCurrency } from '@/lib/formatters';
 
-// ✅ CORRECT - Option 1 (preferred)
-import type { Workout, Ernaehrung } from '@/types/app';
-
-// ✅ CORRECT - Option 2
-import { type Workout, type Ernaehrung } from '@/types/app';
-```
-
----
-
-## Data Fetching Pattern
-
-```typescript
-import { useState, useEffect } from 'react';
-import type { Workout } from '@/types/app';
-import { LivingAppsService } from '@/services/livingAppsService';
-
-function Dashboard() {
-  const [data, setData] = useState<Workout[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
-
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        setLoading(true);
-        const result = await LivingAppsService.getWorkouts();
-        setData(result);
-      } catch (err) {
-        setError(err instanceof Error ? err : new Error('Unknown error'));
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchData();
-  }, []);
-
-  if (loading) return <LoadingState />;
-  if (error) return <ErrorState error={error} onRetry={() => window.location.reload()} />;
-  if (data.length === 0) return <EmptyState />;
-
-  return <DashboardContent data={data} />;
-}
-```
-
----
-
-## Relationship Handling (applookup)
-
-### Joining Data from Multiple Apps
-
-```typescript
-import type { Workout, Exercise } from '@/types/app';
-import { extractRecordId } from '@/services/livingAppsService';
-
-function useDashboardData() {
-  const [workouts, setWorkouts] = useState<Workout[]>([]);
-  const [exercises, setExercises] = useState<Exercise[]>([]);
-
-  useEffect(() => {
-    async function load() {
-      const [w, e] = await Promise.all([
-        LivingAppsService.getWorkouts(),
-        LivingAppsService.getExercises(),
-      ]);
-      setWorkouts(w);
-      setExercises(e);
-    }
-    load();
-  }, []);
-
-  // Create lookup map for exercises
-  const exerciseMap = useMemo(() => {
-    const map = new Map<string, Exercise>();
-    exercises.forEach(ex => map.set(ex.record_id, ex));
-    return map;
-  }, [exercises]);
-
-  // Enrich workouts with exercise data
-  const enrichedWorkouts = useMemo(() => {
-    return workouts.map(workout => {
-      const exerciseId = extractRecordId(workout.fields.exercise);
-      const exercise = exerciseId ? exerciseMap.get(exerciseId) : null;
-      return { ...workout, exercise };
-    });
-  }, [workouts, exerciseMap]);
-
-  return { enrichedWorkouts, loading, error };
-}
-```
-
-### Grouping by Relationship
-
-```typescript
-// Group items by a related record
-function groupByRelation<T extends { fields: { [key: string]: any } }>(
-  items: T[],
-  relationField: string
-): Map<string, T[]> {
-  const groups = new Map<string, T[]>();
-  
-  items.forEach(item => {
-    const relatedId = extractRecordId(item.fields[relationField]);
-    if (!relatedId) return;  // ✅ Skip items without relation
-    
-    if (!groups.has(relatedId)) {
-      groups.set(relatedId, []);
-    }
-    groups.get(relatedId)!.push(item);
-  });
-  
-  return groups;
-}
-
-// Usage
-const workoutsByExercise = groupByRelation(workouts, 'exercise');
-```
-
----
-
-## Form Handling Pattern
-
-```typescript
-import { useState } from 'react';
-import type { WorkoutInput } from '@/types/app';
-import { LivingAppsService, createRecordUrl, APP_IDS } from '@/services/livingAppsService';
-
-function AddWorkoutForm({ onSuccess }: { onSuccess: () => void }) {
-  const [formData, setFormData] = useState<Partial<WorkoutInput>>({});
-  const [submitting, setSubmitting] = useState(false);
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setSubmitting(true);
-
-    try {
-      // Transform data for API
-      const apiData = {
-        ...formData,
-        // Date format: YYYY-MM-DDTHH:MM (no seconds!)
-        datum: formData.datum + 'T12:00',
-        // applookup: full URL
-        exercise: formData.exerciseId 
-          ? createRecordUrl(APP_IDS.EXERCISES, formData.exerciseId)
-          : null,
-      };
-
-      await LivingAppsService.createWorkout(apiData);
-      onSuccess();
-    } catch (err) {
-      console.error('Failed to create:', err);
-    } finally {
-      setSubmitting(false);
-    }
-  }
-
-  return (
-    <form onSubmit={handleSubmit}>
-      {/* Form fields */}
-    </form>
-  );
-}
-```
-
----
-
-## shadcn/ui Component Patterns
-
-### Card with Stats
-
-```typescript
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-
-function StatCard({ title, value, icon: Icon }: StatProps) {
-  return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground">
-          {title}
-        </CardTitle>
-        {Icon && <Icon className="h-4 w-4 text-muted-foreground" />}
-      </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-bold">{value}</div>
-      </CardContent>
-    </Card>
-  );
-}
-```
-
-### ⚠️ Select Component - No Empty Strings!
-
-```typescript
-// ❌ WRONG - Runtime error!
-<SelectItem value="">No selection</SelectItem>
-
-// ✅ CORRECT - Use placeholder
-<Select value={value} onValueChange={setValue}>
-  <SelectTrigger>
-    <SelectValue placeholder="Select option..." />
-  </SelectTrigger>
-  <SelectContent>
-    <SelectItem value="option1">Option 1</SelectItem>
-    <SelectItem value="option2">Option 2</SelectItem>
-  </SelectContent>
-</Select>
-
-// ✅ CORRECT - Use special value for "none"
-<Select value={value || "none"} onValueChange={v => setValue(v === "none" ? "" : v)}>
-  <SelectTrigger>
-    <SelectValue />
-  </SelectTrigger>
-  <SelectContent>
-    <SelectItem value="none">No selection</SelectItem>
-    <SelectItem value="option1">Option 1</SelectItem>
-  </SelectContent>
-</Select>
-```
-
-### Dialog for Actions
-
-```typescript
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-
-function ActionDialog({ trigger, title, children }: DialogProps) {
-  const [open, setOpen] = useState(false);
-
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {trigger}
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-        </DialogHeader>
-        {children}
-      </DialogContent>
-    </Dialog>
-  );
-}
-```
-
----
-
-## Chart Patterns (recharts)
-
-### Basic Line Chart
-
-```typescript
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-
-function TrendChart({ data }: { data: Array<{ name: string; value: number }> }) {
-  return (
-    <div className="h-[300px]">
-      <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={data}>
-          <XAxis 
-            dataKey="name" 
-            tick={{ fontSize: 12 }}
-            stroke="var(--muted-foreground)"
-          />
-          <YAxis 
-            tick={{ fontSize: 12 }}
-            stroke="var(--muted-foreground)"
-          />
-          <Tooltip 
-            contentStyle={{ 
-              backgroundColor: 'var(--background)',
-              border: '1px solid var(--border)',
-            }}
-          />
-          <Line 
-            type="monotone" 
-            dataKey="value" 
-            stroke="var(--primary)"
-            strokeWidth={2}
-            dot={false}
-          />
-        </LineChart>
-      </ResponsiveContainer>
-    </div>
-  );
-}
-```
-
-### Data Aggregation for Charts
-
-```typescript
-// Group by date
-function aggregateByDate<T extends { createdat: string }>(
-  items: T[],
-  valueExtractor: (item: T) => number
-): Array<{ date: string; value: number }> {
-  const groups = new Map<string, number>();
-  
-  items.forEach(item => {
-    const date = item.createdat.split('T')[0];  // YYYY-MM-DD
-    const current = groups.get(date) || 0;
-    groups.set(date, current + valueExtractor(item));
-  });
-  
-  return Array.from(groups.entries())
-    .map(([date, value]) => ({ date, value }))
-    .sort((a, b) => a.date.localeCompare(b.date));
-}
-```
-
----
-
-## Date Formatting (date-fns)
-
-```typescript
-import { format, parseISO, formatDistance } from 'date-fns';
-import { de } from 'date-fns/locale';
-
-// Format for display
-const formatted = format(parseISO(record.createdat), 'dd.MM.yyyy', { locale: de });
-// → "06.11.2025"
-
-// Relative time
-const relative = formatDistance(parseISO(record.createdat), new Date(), { 
-  addSuffix: true,
-  locale: de 
-});
-// → "vor 3 Tagen"
-
-// For input type="date"
-const inputValue = record.datum?.split('T')[0] || '';
-// → "2025-11-06"
-```
-
----
-
-## Utility Functions
-
-### Safe Number Formatting
-
-```typescript
-function formatNumber(value: number | null | undefined): string {
-  if (value == null) return '-';
-  return new Intl.NumberFormat('de-DE').format(value);
-}
-
-function formatCurrency(value: number | null | undefined): string {
-  if (value == null) return '-';
-  return new Intl.NumberFormat('de-DE', {
-    style: 'currency',
-    currency: 'EUR',
-  }).format(value);
-}
-
-function formatPercent(value: number | null | undefined): string {
-  if (value == null) return '-';
-  return new Intl.NumberFormat('de-DE', {
-    style: 'percent',
-    minimumFractionDigits: 1,
-  }).format(value / 100);
-}
-```
-
-### Calculate KPIs
-
-```typescript
-function calculateStats<T>(
-  items: T[],
-  valueExtractor: (item: T) => number | null | undefined
-) {
-  const values = items
-    .map(valueExtractor)
-    .filter((v): v is number => v != null);
-  
-  if (values.length === 0) {
-    return { sum: 0, avg: 0, min: 0, max: 0, count: 0 };
-  }
-  
-  return {
-    sum: values.reduce((a, b) => a + b, 0),
-    avg: values.reduce((a, b) => a + b, 0) / values.length,
-    min: Math.min(...values),
-    max: Math.max(...values),
-    count: values.length,
-  };
-}
+formatDate(record.fields.startdatum);     // "06.11.2025" or "Nov 6, 2025"
+formatCurrency(record.fields.preis);      // "199,00 €" or "$199.00"
 ```
