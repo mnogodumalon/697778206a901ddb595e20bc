@@ -39,8 +39,8 @@
     "tengu_attribution_header": false,
     "tengu_workout2": true
   },
-  "firstStartTime": "2026-02-22T12:59:55.133Z",
-  "userID": "0e3a745e6779a51786c7b93f65efe29297eb79cd5000c658e5a4f205d105f5fe",
+  "firstStartTime": "2026-02-22T14:04:29.088Z",
+  "userID": "1ce1a59167848dd0827e90c2edbbc2530f3586fbd6665cd1424e914d1601039d",
   "sonnet45MigrationComplete": true,
   "opus45MigrationComplete": true,
   "opusProMigrationComplete": true,
@@ -48,6 +48,6 @@
   "penguinModeOrgEnabled": true,
   "clientDataCache": {
     "data": null,
-    "timestamp": 1771765195994
+    "timestamp": 1771769070572
   }
 }
